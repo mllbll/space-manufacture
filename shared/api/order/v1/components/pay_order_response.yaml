@@ -1,0 +1,9 @@
+type: object
+required:
+  - transaction_uuid
+properties:
+  transaction_uuid:
+    type: string
+    description: uuid транзакции (если оплачен)
+    example: "eddc9b62-5d9b-4927-9e20-85bfd177c863"
+ 

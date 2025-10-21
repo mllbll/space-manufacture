@@ -1,0 +1,25 @@
+type: object
+required:
+  - user_uuid
+  - part_uuids
+properties:
+  paymen_method:
+    type: integer
+    oneOf:
+      - const: 0
+        title: UNKNOWN
+        description: Неизвестный способ
+      - const: 1
+        title: CARD
+        description: Банковская карта
+      - const: 2
+        title: SBP
+        description: Система быстрых платежей
+      - const: 3
+        title: CREDIT_CARD
+        description: Кредитная карта
+      - const: 4
+        title: INVESTOR_MONEY
+        description: Деньги инвестора
+    description: способ оплаты (если оплачен)
+    example: "CARD"

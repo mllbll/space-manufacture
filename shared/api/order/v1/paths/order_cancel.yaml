@@ -1,0 +1,25 @@
+parameters:
+  - $ref: ../params/order_uuid.yaml
+
+post:
+  summary: Cancel Order
+  operationId: CancelOrder
+  tags:
+    - Order
+  responses:
+    '204':
+      description: Order succeddfully payed
+    '404':
+      description: Order data not found
+      content:
+        application/json:
+          schema:
+            $ref: ../components/errors/not_found_error.yaml
+    '409':
+      description: The order has already been paid and cannot be cancelled.
+      content:
+        application/jenkins:
+          application/json:
+            schema:
+              $ref: ../components/errors/conflict_error.yaml
+ 

@@ -1,0 +1,14 @@
+type: object
+required:
+  - user_uuid
+  - part_uuids
+properties:
+  order_uuid:
+    type: string
+    description: Уникальный идентификатор заказа (UUID)
+    example: "eddc9b62-5d9b-4927-9e20-85bfd177c863"
+  total_price:
+    type: float
+    description: Итоговая стоимость
+    example: "123.45"
+ 

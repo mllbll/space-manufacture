@@ -1,0 +1,16 @@
+type: object
+required:
+  - user_uuid
+  - part_uuids
+properties:
+  user_uuid:
+    type: string
+    description: Уникальный идентификатор заказа (UUID)
+    example: "eddc9b62-5d9b-4927-9e20-85bfd177c863"
+  part_uuids: #тут нужно доделать
+    type: array
+    items:
+      type: string
+    description: Список UUID деталей
+    example: "['58478a62-8b91-4f0b-8e14-3f7eccfa5ad4', 'abb0ce26-9a98-4dcb-96be-ca87d1517b71']"
+ 
