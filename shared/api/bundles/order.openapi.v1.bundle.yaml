@@ -1,0 +1,346 @@
+openapi: 3.0.3
+info:
+  title: OrderService API
+  version: 1.0.0
+  description: API для обработки заказов
+tags:
+  - name: Order
+    description: Операции с заказами
+paths:
+  /api/v1/orders/{order_uuid}:
+    parameters:
+      - $ref: '#/components/parameters/order_uuid'
+    get:
+      summary: Get order data by uuid
+      orerationId: GetOrderByUuid
+      tags:
+        - Order
+      responses:
+        '200':
+          description: Order information successfully retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/get_order_response'
+        '400':
+          description: Bad request - validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/bad_request_error'
+        '404':
+          description: Order data not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/not_found_error'
+        '500':
+          description: Initial server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/internal_server_error'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/generic_error'
+  /api/v1/orders:
+    post:
+      summary: Add new order
+      operationId: AddNewOrder
+      tags:
+        - Order
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/create_order_request'
+      responses:
+        '200':
+          description: Order created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/create_order_response'
+        '400':
+          description: Bad request - validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/bad_request_error'
+        '404':
+          description: Order data not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/not_found_error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/internal_server_error'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/generic_error'
+  /api/v1/orders/{order_uuid}/pay:
+    parameters:
+      - $ref: '#/components/parameters/order_uuid'
+    post:
+      summary: Pay for order
+      operationId: PayOrder
+      tags:
+        - Order
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/pay_order_request'
+      responses:
+        '200':
+          description: Order succeddfully payed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/pay_order_response'
+        '400':
+          description: Bad request - validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/bad_request_error'
+        '404':
+          description: Order data not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/not_found_error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/internal_server_error'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/generic_error'
+  /api/v1/orders/{order_uuid}/cancel:
+    parameters:
+      - $ref: '#/components/parameters/order_uuid'
+    post:
+      summary: Cancel Order
+      operationId: CancelOrder
+      tags:
+        - Order
+      responses:
+        '204':
+          description: Order succeddfully payed
+        '404':
+          description: Order data not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/not_found_error'
+        '409':
+          description: The order has already been paid and cannot be cancelled.
+          content:
+            application/jenkins:
+              application/json:
+                schema:
+                  $ref: ../components/errors/conflict_error.yaml
+components:
+  parameters:
+    order_uuid:
+      name: order_uuid
+      in: path
+      required: true
+      description: UUID заказа
+      schema:
+        type: string
+        example: 427f9ab4-c1a3-4e87-bb1c-e31d18c1f154
+  schemas:
+    generic_error:
+      type: object
+      properties:
+        code:
+          type: integer
+          description: HTTP-код ошибки
+        message:
+          type: string
+          description: Описание ошибки
+    get_order_response:
+      type: object
+      required:
+        - order_uuid
+        - user_uuid
+        - part_uuids
+        - total_price
+        - transaction_uuid
+        - paymen_method
+        - status
+      properties:
+        order_uuid:
+          type: string
+          description: Уникальный идентификатор заказа (UUID)
+          example: eddc9b62-5d9b-4927-9e20-85bfd177c863
+        user_uuid:
+          type: string
+          description: UUID пользователя
+          example: d06f6d6c-7c19-4e57-9bf5-2afff15ebfcd
+        part_uuids:
+          type: array
+          items:
+            type: string
+          description: Список UUID деталей
+          example: '[''58478a62-8b91-4f0b-8e14-3f7eccfa5ad4'', ''abb0ce26-9a98-4dcb-96be-ca87d1517b71'']'
+        total_price:
+          type: number
+          format: float
+          description: Итоговая стоимость
+          example: '123.45'
+        transaction_uuid:
+          type: string
+          description: uuid транзакции (если оплачен)
+          example: eddc9b62-5d9b-4927-9e20-85bfd177c863
+        payment_method:
+          type: integer
+          enum:
+            - 0
+            - 1
+            - 2
+            - 3
+            - 4
+          description: |
+            Способ оплаты:
+            0 – Неизвестный
+            1 – Банковская карта
+            2 – СБП
+            3 – Кредитная карта
+            4 – Деньги инвестора
+          example: 1
+        status:
+          type: string
+          enum:
+            - PENDING_PAYMENT
+            - PAID
+            - CANCELLED
+          description: Статус оплаты
+          example: PAID
+    bad_request_error:
+      type: object
+      required:
+        - code
+        - message
+      properties:
+        code:
+          type: integer
+          description: HTTP-код ошибки
+          example: 400
+        message:
+          type: string
+          description: Описание ошибки
+          example: 'Bad Request: Invalid parameter format'
+    not_found_error:
+      type: object
+      required:
+        - code
+        - message
+      properties:
+        code:
+          type: integer
+          description: HTTP-код ошибки
+          example: 404
+        message:
+          type: string
+          description: Описание ошибки
+          example: Order for UUID 'Unknown' not found
+    internal_server_error:
+      type: object
+      required:
+        - code
+        - message
+      properties:
+        code:
+          type: integer
+          description: HTTP-код ошибки
+          example: 500
+        message:
+          type: string
+          description: Описание ошибки
+          example: Internal server error occurred
+    create_order_request:
+      type: object
+      required:
+        - user_uuid
+        - part_uuids
+      properties:
+        user_uuid:
+          type: string
+          description: Уникальный идентификатор заказа (UUID)
+          example: eddc9b62-5d9b-4927-9e20-85bfd177c863
+        part_uuids:
+          type: array
+          items:
+            type: string
+          description: Список UUID деталей
+          example: '[''58478a62-8b91-4f0b-8e14-3f7eccfa5ad4'', ''abb0ce26-9a98-4dcb-96be-ca87d1517b71'']'
+    create_order_response:
+      type: object
+      required:
+        - user_uuid
+        - part_uuids
+      properties:
+        order_uuid:
+          type: string
+          description: Уникальный идентификатор заказа (UUID)
+          example: eddc9b62-5d9b-4927-9e20-85bfd177c863
+        total_price:
+          type: number
+          format: float
+          description: Итоговая стоимость
+          example: '123.45'
+    pay_order_request:
+      type: object
+      required:
+        - user_uuid
+        - part_uuids
+      properties:
+        payment_method:
+          type: integer
+          enum:
+            - 0
+            - 1
+            - 2
+            - 3
+            - 4
+          description: |
+            Способ оплаты:
+            0 – Неизвестный
+            1 – Банковская карта
+            2 – СБП
+            3 – Кредитная карта
+            4 – Деньги инвестора
+          example: 1
+    pay_order_response:
+      type: object
+      required:
+        - transaction_uuid
+      properties:
+        transaction_uuid:
+          type: string
+          description: uuid транзакции (если оплачен)
+          example: eddc9b62-5d9b-4927-9e20-85bfd177c863
+x-ogen:
+  target: ./pkg/openapi/order/v1
+  package: order_v1
+  clean: true

@@ -3,23 +3,14 @@ required:
   - user_uuid
   - part_uuids
 properties:
-  paymen_method:
+  payment_method:
     type: integer
-    oneOf:
-      - const: 0
-        title: UNKNOWN
-        description: Неизвестный способ
-      - const: 1
-        title: CARD
-        description: Банковская карта
-      - const: 2
-        title: SBP
-        description: Система быстрых платежей
-      - const: 3
-        title: CREDIT_CARD
-        description: Кредитная карта
-      - const: 4
-        title: INVESTOR_MONEY
-        description: Деньги инвестора
-    description: способ оплаты (если оплачен)
-    example: "CARD"
+    enum: [0, 1, 2, 3, 4]
+    description: |
+      Способ оплаты:
+      0 – Неизвестный
+      1 – Банковская карта
+      2 – СБП
+      3 – Кредитная карта
+      4 – Деньги инвестора
+    example: 1
