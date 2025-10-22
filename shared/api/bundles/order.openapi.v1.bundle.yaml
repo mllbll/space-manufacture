@@ -341,6 +341,6 @@ components:
           description: uuid транзакции (если оплачен)
           example: eddc9b62-5d9b-4927-9e20-85bfd177c863
 x-ogen:
-  target: ./pkg/openapi/order/v1
+  target: ../space_manufacture/shared/pkg/openapi/order/v1
   package: order_v1
   clean: true

@@ -4,7 +4,7 @@ info:
   version: 1.0.0
   description: API для обработки заказов
 x-ogen:
-  target: ./pkg/openapi/order/v1
+  target: ../space_manufacture/shared/pkg/openapi/order/v1
   package: order_v1
   clean: true
 
