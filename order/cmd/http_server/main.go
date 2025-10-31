@@ -14,6 +14,8 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
+
+	orderV1 "github.com/mllbll/space-manufacture/shared/pkg/openapi/order/v1"
 )
 
 const (
@@ -24,6 +26,6 @@ const (
 )
 
 type OrderStorage struct {
-	mu       sync.RWMutex
-	order		map[string]*orderV1.Order
+	mu    sync.RWMutex
+	order map[string]*orderV1
 }

@@ -1,4 +1,4 @@
-module github.com/mllbll/space_infosturcture/shared
+module github.com/mllbll/space_manufacture/shared
 
 go 1.25.1
 
