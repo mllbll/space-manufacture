@@ -177,177 +177,6 @@ func (*GenericErrorStatusCode) aPIV1OrdersOrderUUIDGetRes() {}
 func (*GenericErrorStatusCode) addNewOrderRes()             {}
 func (*GenericErrorStatusCode) payOrderRes()                {}
 
-// Ref: #/components/schemas/get_order_response
-type GetOrderResponse struct {
-	// Уникальный идентификатор заказа (UUID).
-	OrderUUID string `json:"order_uuid"`
-	// UUID пользователя.
-	UserUUID string `json:"user_uuid"`
-	// Список UUID деталей.
-	PartUuids []string `json:"part_uuids"`
-	// Итоговая стоимость.
-	TotalPrice float32 `json:"total_price"`
-	// Uuid транзакции (если оплачен).
-	TransactionUUID string `json:"transaction_uuid"`
-	// Способ оплаты:
-	// 0 – Неизвестный
-	// 1 – Банковская карта
-	// 2 – СБП
-	// 3 – Кредитная карта
-	// 4 – Деньги инвестора.
-	PaymentMethod OptGetOrderResponsePaymentMethod `json:"payment_method"`
-	// Статус оплаты.
-	Status GetOrderResponseStatus `json:"status"`
-}
-
-// GetOrderUUID returns the value of OrderUUID.
-func (s *GetOrderResponse) GetOrderUUID() string {
-	return s.OrderUUID
-}
-
-// GetUserUUID returns the value of UserUUID.
-func (s *GetOrderResponse) GetUserUUID() string {
-	return s.UserUUID
-}
-
-// GetPartUuids returns the value of PartUuids.
-func (s *GetOrderResponse) GetPartUuids() []string {
-	return s.PartUuids
-}
-
-// GetTotalPrice returns the value of TotalPrice.
-func (s *GetOrderResponse) GetTotalPrice() float32 {
-	return s.TotalPrice
-}
-
-// GetTransactionUUID returns the value of TransactionUUID.
-func (s *GetOrderResponse) GetTransactionUUID() string {
-	return s.TransactionUUID
-}
-
-// GetPaymentMethod returns the value of PaymentMethod.
-func (s *GetOrderResponse) GetPaymentMethod() OptGetOrderResponsePaymentMethod {
-	return s.PaymentMethod
-}
-
-// GetStatus returns the value of Status.
-func (s *GetOrderResponse) GetStatus() GetOrderResponseStatus {
-	return s.Status
-}
-
-// SetOrderUUID sets the value of OrderUUID.
-func (s *GetOrderResponse) SetOrderUUID(val string) {
-	s.OrderUUID = val
-}
-
-// SetUserUUID sets the value of UserUUID.
-func (s *GetOrderResponse) SetUserUUID(val string) {
-	s.UserUUID = val
-}
-
-// SetPartUuids sets the value of PartUuids.
-func (s *GetOrderResponse) SetPartUuids(val []string) {
-	s.PartUuids = val
-}
-
-// SetTotalPrice sets the value of TotalPrice.
-func (s *GetOrderResponse) SetTotalPrice(val float32) {
-	s.TotalPrice = val
-}
-
-// SetTransactionUUID sets the value of TransactionUUID.
-func (s *GetOrderResponse) SetTransactionUUID(val string) {
-	s.TransactionUUID = val
-}
-
-// SetPaymentMethod sets the value of PaymentMethod.
-func (s *GetOrderResponse) SetPaymentMethod(val OptGetOrderResponsePaymentMethod) {
-	s.PaymentMethod = val
-}
-
-// SetStatus sets the value of Status.
-func (s *GetOrderResponse) SetStatus(val GetOrderResponseStatus) {
-	s.Status = val
-}
-
-func (*GetOrderResponse) aPIV1OrdersOrderUUIDGetRes() {}
-
-// Способ оплаты:
-// 0 – Неизвестный
-// 1 – Банковская карта
-// 2 – СБП
-// 3 – Кредитная карта
-// 4 – Деньги инвестора.
-type GetOrderResponsePaymentMethod int
-
-const (
-	GetOrderResponsePaymentMethod0 GetOrderResponsePaymentMethod = 0
-	GetOrderResponsePaymentMethod1 GetOrderResponsePaymentMethod = 1
-	GetOrderResponsePaymentMethod2 GetOrderResponsePaymentMethod = 2
-	GetOrderResponsePaymentMethod3 GetOrderResponsePaymentMethod = 3
-	GetOrderResponsePaymentMethod4 GetOrderResponsePaymentMethod = 4
-)
-
-// AllValues returns all GetOrderResponsePaymentMethod values.
-func (GetOrderResponsePaymentMethod) AllValues() []GetOrderResponsePaymentMethod {
-	return []GetOrderResponsePaymentMethod{
-		GetOrderResponsePaymentMethod0,
-		GetOrderResponsePaymentMethod1,
-		GetOrderResponsePaymentMethod2,
-		GetOrderResponsePaymentMethod3,
-		GetOrderResponsePaymentMethod4,
-	}
-}
-
-// Статус оплаты.
-type GetOrderResponseStatus string
-
-const (
-	GetOrderResponseStatusPENDINGPAYMENT GetOrderResponseStatus = "PENDING_PAYMENT"
-	GetOrderResponseStatusPAID           GetOrderResponseStatus = "PAID"
-	GetOrderResponseStatusCANCELLED      GetOrderResponseStatus = "CANCELLED"
-)
-
-// AllValues returns all GetOrderResponseStatus values.
-func (GetOrderResponseStatus) AllValues() []GetOrderResponseStatus {
-	return []GetOrderResponseStatus{
-		GetOrderResponseStatusPENDINGPAYMENT,
-		GetOrderResponseStatusPAID,
-		GetOrderResponseStatusCANCELLED,
-	}
-}
-
-// MarshalText implements encoding.TextMarshaler.
-func (s GetOrderResponseStatus) MarshalText() ([]byte, error) {
-	switch s {
-	case GetOrderResponseStatusPENDINGPAYMENT:
-		return []byte(s), nil
-	case GetOrderResponseStatusPAID:
-		return []byte(s), nil
-	case GetOrderResponseStatusCANCELLED:
-		return []byte(s), nil
-	default:
-		return nil, errors.Errorf("invalid value: %q", s)
-	}
-}
-
-// UnmarshalText implements encoding.TextUnmarshaler.
-func (s *GetOrderResponseStatus) UnmarshalText(data []byte) error {
-	switch GetOrderResponseStatus(data) {
-	case GetOrderResponseStatusPENDINGPAYMENT:
-		*s = GetOrderResponseStatusPENDINGPAYMENT
-		return nil
-	case GetOrderResponseStatusPAID:
-		*s = GetOrderResponseStatusPAID
-		return nil
-	case GetOrderResponseStatusCANCELLED:
-		*s = GetOrderResponseStatusCANCELLED
-		return nil
-	default:
-		return errors.Errorf("invalid value: %q", data)
-	}
-}
-
 // Ref: #/components/schemas/internal_server_error
 type InternalServerError struct {
 	// HTTP-код ошибки.
@@ -459,52 +288,6 @@ func (o OptFloat32) Or(d float32) float32 {
 	return d
 }
 
-// NewOptGetOrderResponsePaymentMethod returns new OptGetOrderResponsePaymentMethod with value set to v.
-func NewOptGetOrderResponsePaymentMethod(v GetOrderResponsePaymentMethod) OptGetOrderResponsePaymentMethod {
-	return OptGetOrderResponsePaymentMethod{
-		Value: v,
-		Set:   true,
-	}
-}
-
-// OptGetOrderResponsePaymentMethod is optional GetOrderResponsePaymentMethod.
-type OptGetOrderResponsePaymentMethod struct {
-	Value GetOrderResponsePaymentMethod
-	Set   bool
-}
-
-// IsSet returns true if OptGetOrderResponsePaymentMethod was set.
-func (o OptGetOrderResponsePaymentMethod) IsSet() bool { return o.Set }
-
-// Reset unsets value.
-func (o *OptGetOrderResponsePaymentMethod) Reset() {
-	var v GetOrderResponsePaymentMethod
-	o.Value = v
-	o.Set = false
-}
-
-// SetTo sets value to v.
-func (o *OptGetOrderResponsePaymentMethod) SetTo(v GetOrderResponsePaymentMethod) {
-	o.Set = true
-	o.Value = v
-}
-
-// Get returns value and boolean that denotes whether value was set.
-func (o OptGetOrderResponsePaymentMethod) Get() (v GetOrderResponsePaymentMethod, ok bool) {
-	if !o.Set {
-		return v, false
-	}
-	return o.Value, true
-}
-
-// Or returns value if set, or given parameter if does not.
-func (o OptGetOrderResponsePaymentMethod) Or(d GetOrderResponsePaymentMethod) GetOrderResponsePaymentMethod {
-	if v, ok := o.Get(); ok {
-		return v
-	}
-	return d
-}
-
 // NewOptInt returns new OptInt with value set to v.
 func NewOptInt(v int) OptInt {
 	return OptInt{
@@ -545,6 +328,52 @@ func (o OptInt) Get() (v int, ok bool) {
 
 // Or returns value if set, or given parameter if does not.
 func (o OptInt) Or(d int) int {
+	if v, ok := o.Get(); ok {
+		return v
+	}
+	return d
+}
+
+// NewOptOrderPaymentMethod returns new OptOrderPaymentMethod with value set to v.
+func NewOptOrderPaymentMethod(v OrderPaymentMethod) OptOrderPaymentMethod {
+	return OptOrderPaymentMethod{
+		Value: v,
+		Set:   true,
+	}
+}
+
+// OptOrderPaymentMethod is optional OrderPaymentMethod.
+type OptOrderPaymentMethod struct {
+	Value OrderPaymentMethod
+	Set   bool
+}
+
+// IsSet returns true if OptOrderPaymentMethod was set.
+func (o OptOrderPaymentMethod) IsSet() bool { return o.Set }
+
+// Reset unsets value.
+func (o *OptOrderPaymentMethod) Reset() {
+	var v OrderPaymentMethod
+	o.Value = v
+	o.Set = false
+}
+
+// SetTo sets value to v.
+func (o *OptOrderPaymentMethod) SetTo(v OrderPaymentMethod) {
+	o.Set = true
+	o.Value = v
+}
+
+// Get returns value and boolean that denotes whether value was set.
+func (o OptOrderPaymentMethod) Get() (v OrderPaymentMethod, ok bool) {
+	if !o.Set {
+		return v, false
+	}
+	return o.Value, true
+}
+
+// Or returns value if set, or given parameter if does not.
+func (o OptOrderPaymentMethod) Or(d OrderPaymentMethod) OrderPaymentMethod {
 	if v, ok := o.Get(); ok {
 		return v
 	}
@@ -641,6 +470,177 @@ func (o OptString) Or(d string) string {
 		return v
 	}
 	return d
+}
+
+// Ref: #/components/schemas/order
+type Order struct {
+	// Уникальный идентификатор заказа (UUID).
+	OrderUUID string `json:"order_uuid"`
+	// UUID пользователя.
+	UserUUID string `json:"user_uuid"`
+	// Список UUID деталей.
+	PartUuids []string `json:"part_uuids"`
+	// Итоговая стоимость.
+	TotalPrice float32 `json:"total_price"`
+	// Uuid транзакции (если оплачен).
+	TransactionUUID string `json:"transaction_uuid"`
+	// Способ оплаты:
+	// 0 – Неизвестный
+	// 1 – Банковская карта
+	// 2 – СБП
+	// 3 – Кредитная карта
+	// 4 – Деньги инвестора.
+	PaymentMethod OptOrderPaymentMethod `json:"payment_method"`
+	// Статус оплаты.
+	Status OrderStatus `json:"status"`
+}
+
+// GetOrderUUID returns the value of OrderUUID.
+func (s *Order) GetOrderUUID() string {
+	return s.OrderUUID
+}
+
+// GetUserUUID returns the value of UserUUID.
+func (s *Order) GetUserUUID() string {
+	return s.UserUUID
+}
+
+// GetPartUuids returns the value of PartUuids.
+func (s *Order) GetPartUuids() []string {
+	return s.PartUuids
+}
+
+// GetTotalPrice returns the value of TotalPrice.
+func (s *Order) GetTotalPrice() float32 {
+	return s.TotalPrice
+}
+
+// GetTransactionUUID returns the value of TransactionUUID.
+func (s *Order) GetTransactionUUID() string {
+	return s.TransactionUUID
+}
+
+// GetPaymentMethod returns the value of PaymentMethod.
+func (s *Order) GetPaymentMethod() OptOrderPaymentMethod {
+	return s.PaymentMethod
+}
+
+// GetStatus returns the value of Status.
+func (s *Order) GetStatus() OrderStatus {
+	return s.Status
+}
+
+// SetOrderUUID sets the value of OrderUUID.
+func (s *Order) SetOrderUUID(val string) {
+	s.OrderUUID = val
+}
+
+// SetUserUUID sets the value of UserUUID.
+func (s *Order) SetUserUUID(val string) {
+	s.UserUUID = val
+}
+
+// SetPartUuids sets the value of PartUuids.
+func (s *Order) SetPartUuids(val []string) {
+	s.PartUuids = val
+}
+
+// SetTotalPrice sets the value of TotalPrice.
+func (s *Order) SetTotalPrice(val float32) {
+	s.TotalPrice = val
+}
+
+// SetTransactionUUID sets the value of TransactionUUID.
+func (s *Order) SetTransactionUUID(val string) {
+	s.TransactionUUID = val
+}
+
+// SetPaymentMethod sets the value of PaymentMethod.
+func (s *Order) SetPaymentMethod(val OptOrderPaymentMethod) {
+	s.PaymentMethod = val
+}
+
+// SetStatus sets the value of Status.
+func (s *Order) SetStatus(val OrderStatus) {
+	s.Status = val
+}
+
+func (*Order) aPIV1OrdersOrderUUIDGetRes() {}
+
+// Способ оплаты:
+// 0 – Неизвестный
+// 1 – Банковская карта
+// 2 – СБП
+// 3 – Кредитная карта
+// 4 – Деньги инвестора.
+type OrderPaymentMethod int
+
+const (
+	OrderPaymentMethod0 OrderPaymentMethod = 0
+	OrderPaymentMethod1 OrderPaymentMethod = 1
+	OrderPaymentMethod2 OrderPaymentMethod = 2
+	OrderPaymentMethod3 OrderPaymentMethod = 3
+	OrderPaymentMethod4 OrderPaymentMethod = 4
+)
+
+// AllValues returns all OrderPaymentMethod values.
+func (OrderPaymentMethod) AllValues() []OrderPaymentMethod {
+	return []OrderPaymentMethod{
+		OrderPaymentMethod0,
+		OrderPaymentMethod1,
+		OrderPaymentMethod2,
+		OrderPaymentMethod3,
+		OrderPaymentMethod4,
+	}
+}
+
+// Статус оплаты.
+type OrderStatus string
+
+const (
+	OrderStatusPENDINGPAYMENT OrderStatus = "PENDING_PAYMENT"
+	OrderStatusPAID           OrderStatus = "PAID"
+	OrderStatusCANCELLED      OrderStatus = "CANCELLED"
+)
+
+// AllValues returns all OrderStatus values.
+func (OrderStatus) AllValues() []OrderStatus {
+	return []OrderStatus{
+		OrderStatusPENDINGPAYMENT,
+		OrderStatusPAID,
+		OrderStatusCANCELLED,
+	}
+}
+
+// MarshalText implements encoding.TextMarshaler.
+func (s OrderStatus) MarshalText() ([]byte, error) {
+	switch s {
+	case OrderStatusPENDINGPAYMENT:
+		return []byte(s), nil
+	case OrderStatusPAID:
+		return []byte(s), nil
+	case OrderStatusCANCELLED:
+		return []byte(s), nil
+	default:
+		return nil, errors.Errorf("invalid value: %q", s)
+	}
+}
+
+// UnmarshalText implements encoding.TextUnmarshaler.
+func (s *OrderStatus) UnmarshalText(data []byte) error {
+	switch OrderStatus(data) {
+	case OrderStatusPENDINGPAYMENT:
+		*s = OrderStatusPENDINGPAYMENT
+		return nil
+	case OrderStatusPAID:
+		*s = OrderStatusPAID
+		return nil
+	case OrderStatusCANCELLED:
+		*s = OrderStatusCANCELLED
+		return nil
+	default:
+		return errors.Errorf("invalid value: %q", data)
+	}
 }
 
 // Ref: #/components/schemas/pay_order_request

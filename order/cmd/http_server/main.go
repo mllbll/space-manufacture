@@ -18,7 +18,7 @@ const (
 
 type OrderStorage struct {
 	mu     sync.RWMutex
-	orders map[string]*orderV1.GetOrderResponse
+	orders map[string]*orderV1.Order
 }
 
 //мапка ордер хранит UUID и структуру GetOrderResponse
@@ -80,7 +80,7 @@ func (h *OrderHandler) CreateNewOrder(_ context.Context, req *orderV1.CreateOrde
 		TotalPrice:      12,
 		TransactionUUID: "6cfb5601-43d1-4ad0-8d26-b0c96840a7e3",
 		PaymentMethod:   orderV1.NewOptGetOrderResponsePaymentMethod(1), //Я вообще хз что тут за тип данных, скорее всего наебнулась генерация
-		Status:          "payed",
+		Status:          "PENDING_PAYMENT",
 	}
 	order_resp := &orderV1.CreateOrderResponse{
 		OrderUUID:  orderV1.NewOptString("05b4fe37-7822-4d95-8f1f-76edbcc3c134"),

@@ -31,7 +31,7 @@ func decodeAPIV1OrdersOrderUUIDGetResponse(resp *http.Response) (res APIV1Orders
 			}
 			d := jx.DecodeBytes(buf)
 
-			var response GetOrderResponse
+			var response Order
 			if err := func() error {
 				if err := response.Decode(d); err != nil {
 					return err

@@ -16,7 +16,7 @@ import (
 
 func encodeAPIV1OrdersOrderUUIDGetResponse(response APIV1OrdersOrderUUIDGetRes, w http.ResponseWriter, span trace.Span) error {
 	switch response := response.(type) {
-	case *GetOrderResponse:
+	case *Order:
 		w.Header().Set("Content-Type", "application/json; charset=utf-8")
 		w.WriteHeader(200)
 		span.SetStatus(codes.Ok, http.StatusText(200))

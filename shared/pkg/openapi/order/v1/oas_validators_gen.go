@@ -61,7 +61,7 @@ func (s *CreateOrderResponse) Validate() error {
 	return nil
 }
 
-func (s *GetOrderResponse) Validate() error {
+func (s *Order) Validate() error {
 	if s == nil {
 		return validate.ErrNilPointer
 	}
@@ -124,7 +124,7 @@ func (s *GetOrderResponse) Validate() error {
 	return nil
 }
 
-func (s GetOrderResponsePaymentMethod) Validate() error {
+func (s OrderPaymentMethod) Validate() error {
 	switch s {
 	case 0:
 		return nil
@@ -141,7 +141,7 @@ func (s GetOrderResponsePaymentMethod) Validate() error {
 	}
 }
 
-func (s GetOrderResponseStatus) Validate() error {
+func (s OrderStatus) Validate() error {
 	switch s {
 	case "PENDING_PAYMENT":
 		return nil

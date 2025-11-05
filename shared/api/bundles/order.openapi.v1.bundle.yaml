@@ -21,7 +21,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/get_order_response'
+                $ref: '#/components/schemas/order'
         '400':
           description: Bad request - validation error
           content:
@@ -178,7 +178,7 @@ components:
         message:
           type: string
           description: Описание ошибки
-    get_order_response:
+    order:
       type: object
       required:
         - order_uuid
