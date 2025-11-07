@@ -30,8 +30,8 @@ github.com/mattn/go-colorable v0.1.13/go.mod h1:7S9/ev0klgBDR4GtXTXX8a3vIGJpMovk
 github.com/mattn/go-isatty v0.0.16/go.mod h1:kYGgaQfpe5nmfYZH+SKPsOc2e4SrIfOl2e/yFXSvRLM=
 github.com/mattn/go-isatty v0.0.20 h1:xfD0iDuEKnDkl03q4limB+vH+GxLEtL/jb4xVJSWWEY=
 github.com/mattn/go-isatty v0.0.20/go.mod h1:W+V8PltTTMOvKvAeJH7IuucS94S2C6jfK/D7dTCTo3Y=
-github.com/mllbll/space-manufacture/shared v0.0.0-20251031223231-0d82ab62dac8 h1:mm7ohLfDbbSIXrSch0WTsC62FR+ZTaHN6m3B/fmsSmI=
-github.com/mllbll/space-manufacture/shared v0.0.0-20251031223231-0d82ab62dac8/go.mod h1:qYdEZAMwuB4wqh3FkLNLGuAKS0N/mNTd6vp8k7PDmKg=
+github.com/mllbll/space-manufacture/shared v0.0.0-20251105095031-6aae00b52bd0 h1:UGoHz4Z9exCw4ksOxgeINyXnTeAw9Z0WaaBoX/9gBIg=
+github.com/mllbll/space-manufacture/shared v0.0.0-20251105095031-6aae00b52bd0/go.mod h1:qYdEZAMwuB4wqh3FkLNLGuAKS0N/mNTd6vp8k7PDmKg=
 github.com/ogen-go/ogen v1.16.0 h1:fKHEYokW/QrMzVNXId74/6RObRIUs9T2oroGKtR25Iw=
 github.com/ogen-go/ogen v1.16.0/go.mod h1:s3nWiMzybSf8fhxckyO+wtto92+QHpEL8FmkPnhL3jI=
 github.com/pmezard/go-difflib v1.0.0 h1:4DBwDE0NGyQoBHbLQYPwSUPoCMWR5BEzIk/f1lZbAQM=

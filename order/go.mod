@@ -2,7 +2,7 @@ module order
 
 go 1.25.1
 
-require github.com/mllbll/space-manufacture/shared v0.0.0-20251031223231-0d82ab62dac8
+require github.com/mllbll/space-manufacture/shared v0.0.0-20251105095031-6aae00b52bd0
 
 require (
 	github.com/dlclark/regexp2 v1.11.5 // indirect
