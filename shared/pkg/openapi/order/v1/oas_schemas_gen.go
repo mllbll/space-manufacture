@@ -483,7 +483,7 @@ type Order struct {
 	// Итоговая стоимость.
 	TotalPrice float32 `json:"total_price"`
 	// Uuid транзакции (если оплачен).
-	TransactionUUID string `json:"transaction_uuid"`
+	TransactionUUID OptString `json:"transaction_uuid"`
 	// Способ оплаты:
 	// 0 – Неизвестный
 	// 1 – Банковская карта
@@ -516,7 +516,7 @@ func (s *Order) GetTotalPrice() float32 {
 }
 
 // GetTransactionUUID returns the value of TransactionUUID.
-func (s *Order) GetTransactionUUID() string {
+func (s *Order) GetTransactionUUID() OptString {
 	return s.TransactionUUID
 }
 
@@ -551,7 +551,7 @@ func (s *Order) SetTotalPrice(val float32) {
 }
 
 // SetTransactionUUID sets the value of TransactionUUID.
-func (s *Order) SetTransactionUUID(val string) {
+func (s *Order) SetTransactionUUID(val OptString) {
 	s.TransactionUUID = val
 }
 

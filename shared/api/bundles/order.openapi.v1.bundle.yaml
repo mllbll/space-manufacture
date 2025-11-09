@@ -185,8 +185,6 @@ components:
         - user_uuid
         - part_uuids
         - total_price
-        - transaction_uuid
-        - paymen_method
         - status
       properties:
         order_uuid:
