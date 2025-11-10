@@ -2,12 +2,24 @@ package main
 
 import (
 	"context"
+	"errors"
 	"fmt"
+	"log"
+	"net"
+	"net/http"
+	"os"
+	"os/signal"
 	"sync"
+	"syscall"
 	"time"
 
+	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/chi/v5/middleware"
+
+	"github.com/google/uuid"
+
 	orderV1 "github.com/mllbll/space-manufacture/shared/pkg/openapi/order/v1"
-	order_v1 "github.com/mllbll/space-manufacture/shared/pkg/openapi/order/v1"
+	// order_v1 "github.com/mllbll/space-manufacture/shared/pkg/openapi/order/v1"
 )
 
 const (
@@ -32,16 +44,17 @@ func NewOrderStorage() *OrderStorage {
 	}
 }
 
-func (s *OrderStorage) GetOrder(order_uuid string) *orderV1.Order {
+func (s *OrderStorage) GetOrder(order_uuid string) (*orderV1.Order, error) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
 
 	order, ok := s.orders[order_uuid]
 	if !ok {
-		return nil
+		//		return nil, newNotFound(fmt.Sprint("Order with UUID '%s' not found", order_uuid)), nil
+		return nil, fmt.Errorf("order with UUID %q not found", order_uuid)
 	}
 
-	return order
+	return order, nil
 }
 
 func newNotFound(message string) *orderV1.NotFoundError {
@@ -51,13 +64,14 @@ func newNotFound(message string) *orderV1.NotFoundError {
 	}
 }
 
-func (s *OrderStorage) CreateOrder(order *orderV1.CreateOrderRequest) {
+func (s *OrderStorage) CreateOrderByUUID(order_uuid string, order *orderV1.CreateOrderRequest) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	// тут нет обработки на поиск order по UUID потому что мы его создаем
 	//	order_uuid := "3f3b7af8-5646-4d11-b373-10c01d6f9c05" //тут тоже заглушка ибо я хз откуда я должен вообще высрать этот UUID
 	// по идее UUID я должен парсить из созданной структуры
-	order_uuid := "62e69f5b-9c60-4017-b095-97ce32e27042" // UUID все еще заглушил
+	//	order_uuid := "62e69f5b-9c60-4017-b095-97ce32e27042" // UUID все еще заглушил
+	//	order_uuid := uuid.New().String()
 	new_order := &orderV1.Order{
 		OrderUUID:  order_uuid,
 		UserUUID:   order.UserUUID,
@@ -68,7 +82,7 @@ func (s *OrderStorage) CreateOrder(order *orderV1.CreateOrderRequest) {
 	s.orders[order_uuid] = new_order
 }
 
-func (s *OrderStorage) PayOrder(order_uuid string, payment_method *orderV1.PayOrderRequest) {
+func (s *OrderStorage) PayOrderByUUID(order_uuid string, payment_method *orderV1.PayOrderRequest) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
@@ -77,18 +91,23 @@ func (s *OrderStorage) PayOrder(order_uuid string, payment_method *orderV1.PayOr
 	//	s.orders[order_uuid].PaymentMethod = orderV1.NewOptOrderPaymentMethod(payment_method.PaymentMethod)
 	order, ok := s.orders[order_uuid]
 	if !ok {
-		return
+		//		return newNotFound(fmt.Sprint("Order with UUID 's' not found", order_uuid))
+		return fmt.Errorf("order with UUID %q not found", order_uuid)
 	}
 	// парсим поле PaymentMethod из PayOrderRequest и запихиваем его в структуру Order
 	method, ok := payment_method.GetPaymentMethod().Get()
 	if !ok {
-		return // тут нужно написать обработчик ошибочек
+		return errors.New("payment method is required")
+		// тут нужно написать обработчик ошибочек
 	}
 	// проверяем что order[order_uuid] существует и закидываем его в order
 	order.PaymentMethod = orderV1.NewOptOrderPaymentMethod(orderV1.OrderPaymentMethod(method))
+	order.Status = orderV1.OrderStatusPAID
+
+	return nil
 }
 
-func (s *OrderStorage) CancelOrder(order_cancel_uuid *orderV1.CancelOrderParams) (orderV1.CancelOrderRes, error) {
+func (s *OrderStorage) CancelOrderByUUID(order_cancel_uuid *orderV1.CancelOrderParams) (orderV1.CancelOrderRes, error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	order_uuid := order_cancel_uuid.OrderUUID
@@ -105,7 +124,7 @@ func (s *OrderStorage) CancelOrder(order_cancel_uuid *orderV1.CancelOrderParams)
 	if order_status == orderV1.OrderStatusPAID {
 		return &orderV1.CancelOrderConflict{}, nil
 	}
-	return nil, nil
+	return &orderV1.CancelOrderNoContent{}, nil
 }
 
 type OrderHandler struct {
@@ -118,8 +137,8 @@ func NewOrderHandler(storage *OrderStorage) *OrderHandler {
 	}
 }
 
-func (h *OrderHandler) GetOrderByUuid(_ context.Context, params orderV1.APIV1OrdersOrderUUIDGetParams) (orderV1.APIV1OrdersOrderUUIDGetRes, error) {
-	order := h.storage.GetOrder(params.OrderUUID)
+func (h *OrderHandler) APIV1OrdersOrderUUIDGet(_ context.Context, params orderV1.APIV1OrdersOrderUUIDGetParams) (orderV1.APIV1OrdersOrderUUIDGetRes, error) {
+	order, _ := h.storage.GetOrder(params.OrderUUID)
 	if order == nil {
 		return &orderV1.NotFoundError{
 			Code:    404,
@@ -131,7 +150,7 @@ func (h *OrderHandler) GetOrderByUuid(_ context.Context, params orderV1.APIV1Ord
 }
 
 // Заглушил поля кроме нужных в реквесте приколами, нужно исправить!!!
-func (h *OrderHandler) CreateNewOrder(_ context.Context, req *orderV1.CreateOrderRequest) (orderV1.CreateOrderResponse, error) {
+func (h *OrderHandler) AddNewOrder(_ context.Context, req *orderV1.CreateOrderRequest) (orderV1.AddNewOrderRes, error) {
 	//	order := &orderV1.Order{ // Тут хз что должно быть потому что приходит реквест в котором мало полей
 	//		OrderUUID:       "05b4fe37-7822-4d95-8f1f-76edbcc3c134",
 	//		UserUUID:        req.UserUUID,
@@ -146,37 +165,109 @@ func (h *OrderHandler) CreateNewOrder(_ context.Context, req *orderV1.CreateOrde
 		UserUUID:  req.UserUUID,
 		PartUuids: req.PartUuids,
 	}
+
+	order_uuid := uuid.New().String()
 	order_resp := &orderV1.CreateOrderResponse{
-		OrderUUID:  orderV1.NewOptString("05b4fe37-7822-4d95-8f1f-76edbcc3c134"), // Заглушил значение UUID до момента пока не напишу норм функцию генерации UUID
+		//		OrderUUID:  orderV1.NewOptString("05b4fe37-7822-4d95-8f1f-76edbcc3c134"), // Заглушил значение UUID до момента пока не напишу норм функцию генерации UUID
+		OrderUUID:  orderV1.NewOptString(order_uuid),
 		TotalPrice: orderV1.NewOptFloat32(12.1),
 	}
-	h.storage.CreateOrder(order)
+	h.storage.CreateOrderByUUID(order_uuid, order)
 
-	return *order_resp, nil
+	return order_resp, nil
 }
 
 // адски насрал в PayOrder и в storage тут
-func (h *OrderHandler) PayOrderByUUID(_ context.Context, req *orderV1.PayOrderRequest, params orderV1.PayOrderParams) (orderV1.PayOrderRes, error) {
+func (h *OrderHandler) PayOrder(_ context.Context, req *orderV1.PayOrderRequest, params orderV1.PayOrderParams) (orderV1.PayOrderRes, error) {
 	orderPayInfo := &orderV1.PayOrderRequest{
 		PaymentMethod: orderV1.NewOptPayOrderRequestPaymentMethod(1),
 	}
 
-	h.storage.PayOrder(params.OrderUUID, orderPayInfo)
+	//	h.storage.PayOrderByUUID(params.OrderUUID, orderPayInfo
+	if err := h.storage.PayOrderByUUID(params.OrderUUID, orderPayInfo); err != nil {
+		return nil, err
+	}
 	// прокидываем в storage наш s из функции PayOrder
 
-	order_pay_resp := &order_v1.PayOrderResponse{
-		TransactionUUID: "7b5c38cb-57b9-4f2e-9a0a-c518add9ccaa",
+	order_pay_resp := &orderV1.PayOrderResponse{
+		//		TransactionUUID: "7b5c38cb-57b9-4f2e-9a0a-c518add9ccaa",
+		TransactionUUID: uuid.New().String(),
 		// тут должен наверное генерироваться uuid транзакции
 	}
 	return order_pay_resp, nil
 }
 
-func (h *OrderHandler) CancelOrderByUUID(_ context.Context, params orderV1.CancelOrderParams) (orderV1.CancelOrderRes, error) {
+func (h *OrderHandler) CancelOrder(_ context.Context, params orderV1.CancelOrderParams) (orderV1.CancelOrderRes, error) {
 	order_uuid := &orderV1.CancelOrderParams{
 		OrderUUID: params.OrderUUID,
 	}
 
-	h.storage.CancelOrder(order_uuid)
+	//	h.storage.CancelOrderByUUID(order_uuid)
 
-	return &orderV1.CancelOrderNoContent{}, nil
+	//	return &orderV1.CancelOrderNoContent{}, nil
+	return h.storage.CancelOrderByUUID(order_uuid)
+}
+
+// NewError создает новую ошибку в формате GenericError
+func (h *OrderHandler) NewError(_ context.Context, err error) *orderV1.GenericErrorStatusCode {
+	return &orderV1.GenericErrorStatusCode{
+		StatusCode: http.StatusInternalServerError,
+		Response: orderV1.GenericError{
+			Code:    orderV1.NewOptInt(http.StatusInternalServerError),
+			Message: orderV1.NewOptString(err.Error()),
+		},
+	}
+}
+
+func main() {
+
+	storage := NewOrderStorage()
+
+	orderHandler := NewOrderHandler(storage)
+
+	orderServer, err := orderV1.NewServer(orderHandler)
+	if err != nil {
+		log.Fatalf("Ошибка создания сервера OpenApi: %v", err)
+	}
+
+	r := chi.NewRouter()
+
+	r.Use(middleware.Logger)
+	r.Use(middleware.Recoverer)
+	r.Use(middleware.Timeout(10 * time.Second))
+	// Написать кастомные мидлвари
+
+	r.Mount("/", orderServer)
+
+	server := &http.Server{
+		Addr:              net.JoinHostPort("localhost", httpPort),
+		Handler:           r,
+		ReadHeaderTimeout: readHeaderTimeout,
+	}
+
+	go func() {
+		log.Printf("🚀 HTTP-сервер запущен на порту %s\n", httpPort)
+		err = server.ListenAndServe()
+		if err != nil && !errors.Is(err, http.ErrServerClosed) {
+			log.Printf("❌ Ошибка запуска сервера: %v\n", err)
+		}
+	}()
+
+	// Graceful shutdown
+	quit := make(chan os.Signal, 1)
+	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
+	<-quit
+
+	log.Println("🛑 Завершение работы сервера...")
+
+	// Создаем контекст с таймаутом для остановки сервера
+	ctx, cancel := context.WithTimeout(context.Background(), shutdownTimeout)
+	defer cancel()
+
+	err = server.Shutdown(ctx)
+	if err != nil {
+		log.Printf("❌ Ошибка при остановке сервера: %v\n", err)
+	}
+
+	log.Println("✅ Сервер остановлен")
 }
