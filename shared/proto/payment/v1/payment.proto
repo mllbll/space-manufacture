@@ -1,0 +1,30 @@
+syntax = "proto3";
+package payment.v1;
+
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/wrappers.proto";
+import "google/protobuf/empty.proto";
+
+option go_package = "github.com/mllbll/space_manufacture/shared/pkg/proto/payment/v1;payment_v1";
+
+service PaymentService{
+  rpc PayOrder(PayOrderRequest) returns (PayOrderResponse);
+}
+
+enum payment_method_enum {
+  UNKNOWN = 0;
+  CARD = 1;
+  SBP = 2;
+  CREDIT_CARD = 3;
+  INVESTOR_MONEY = 4;
+}
+
+message PayOrderMessage{
+  string order_uuid = 1;
+
+  string order_uuid = 2;
+
+  payment_method payment_method_enum = 3;
+}
+
+
