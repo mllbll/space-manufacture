@@ -30,6 +30,10 @@ func (s *paymentService) Pay(_ context.Context, req *paymentV1.PayOrderRequest) 
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
+	if req.PayOrderMessage == nil {
+		return nil, fmt.Errorf("pay_order_message is required")
+	}
+
 	newTransactionUUID := uuid.New().String()
 
 	newPayOrderMessage := &paymentV1.PayOrderMessage{
@@ -49,7 +53,7 @@ func (s *paymentService) Pay(_ context.Context, req *paymentV1.PayOrderRequest) 
 }
 
 func main() {
-	lis, err := net.Listen("tcp", fmt.Sprintf(":d", grpcPort))
+	lis, err := net.Listen("tcp", fmt.Sprintf(":%d", grpcPort))
 	if err != nil {
 		log.Printf("failed to listen: %v\n", err)
 		return
