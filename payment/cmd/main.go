@@ -26,7 +26,7 @@ type paymentService struct {
 	payOrderMessages map[string]*paymentV1.PayOrderMessage
 }
 
-func (s *paymentService) Pay(_ context.Context, req *paymentV1.PayOrderRequest) (*paymentV1.PayOrderResponse, error) {
+func (s *paymentService) PayOrder(_ context.Context, req *paymentV1.PayOrderRequest) (*paymentV1.PayOrderResponse, error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
