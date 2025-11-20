@@ -15,10 +15,16 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
 
 	"github.com/google/uuid"
 
 	orderV1 "github.com/mllbll/space-manufacture/shared/pkg/openapi/order/v1"
+
+	paymentV1 "github.com/mllbll/space-manufacture/shared/pkg/proto/payment/v1"
+	//	inventoryV1 "github.com/mllbll/space-manufacture/shared/pkg/proto/inventory/v1"
+	//
 	// order_v1 "github.com/mllbll/space-manufacture/shared/pkg/openapi/order/v1"
 )
 
@@ -27,11 +33,53 @@ const (
 	// Таймауты для HTTP-сервера
 	readHeaderTimeout = 5 * time.Second
 	shutdownTimeout   = 10 * time.Second
+	// Порты gRPC сервисов
+	paymentServiceServerAddress               = "localhost:50051"
+	inventorySErrServerClosediceServerAddress = "localhost:50052"
 )
 
 type OrderStorage struct {
 	mu     sync.RWMutex
 	orders map[string]*orderV1.Order
+}
+
+// Функция которая будет ходить в payment и получать TransactionUUID
+func payOrderCall(req *paymentV1.PayOrderRequest) (string, error) {
+
+	if req.PayOrderMessage == nil {
+		return "", fmt.Errorf("pay_order_message is required")
+	}
+
+	ctx := context.Background()
+
+	conn, err := grpc.NewClient(
+		paymentServiceServerAddress,
+		grpc.WithTransportCredentials(insecure.NewCredentials()),
+	)
+	if err != nil {
+		log.Printf("failed to connect: %v\n", err)
+		return "", fmt.Errorf("failed to connect to payment service: %w", err)
+	}
+	defer func() {
+		if cerr := conn.Close(); cerr != nil {
+			log.Printf("failed to close connect: %v", cerr)
+		}
+	}()
+
+	client := paymentV1.NewPaymentServiceClient(conn)
+
+	payOrderMessage := &paymentV1.PayOrderMessage{
+		OrderUuid:     req.PayOrderMessage.OrderUuid,
+		UserUuid:      req.PayOrderMessage.UserUuid,
+		PaymentMethod: req.PayOrderMessage.PaymentMethod,
+	}
+
+	resp, err := client.PayOrder(ctx, &paymentV1.PayOrderRequest{PayOrderMessage: payOrderMessage})
+	if err != nil {
+		return "", err
+	}
+
+	return resp.TransactionUuid, nil
 }
 
 //мапка ордер хранит UUID и структуру GetOrderResponse
@@ -179,8 +227,14 @@ func (h *OrderHandler) AddNewOrder(_ context.Context, req *orderV1.CreateOrderRe
 
 // адски насрал в PayOrder и в storage тут
 func (h *OrderHandler) PayOrder(_ context.Context, req *orderV1.PayOrderRequest, params orderV1.PayOrderParams) (orderV1.PayOrderRes, error) {
+	// Проверяем наличие payment method
+	method, ok := req.GetPaymentMethod().Get()
+	if !ok {
+		return nil, fmt.Errorf("payment method is required")
+	}
+
 	orderPayInfo := &orderV1.PayOrderRequest{
-		PaymentMethod: orderV1.NewOptPayOrderRequestPaymentMethod(1),
+		PaymentMethod: orderV1.NewOptPayOrderRequestPaymentMethod(method),
 	}
 
 	//	h.storage.PayOrderByUUID(params.OrderUUID, orderPayInfo
@@ -189,9 +243,28 @@ func (h *OrderHandler) PayOrder(_ context.Context, req *orderV1.PayOrderRequest,
 	}
 	// прокидываем в storage наш s из функции PayOrder
 
+	// Получаем заказ для извлечения UserUUID
+	order, err := h.storage.GetOrder(params.OrderUUID)
+	if err != nil {
+		return nil, err
+	}
+
+	payOrderMessage := paymentV1.PayOrderMessage{
+		OrderUuid:     params.OrderUUID,
+		UserUuid:      order.UserUUID,
+		PaymentMethod: paymentV1.PaymentMethodEnum(method),
+	}
+	transactionUuid, err := payOrderCall(&paymentV1.PayOrderRequest{PayOrderMessage: &payOrderMessage})
+	if err != nil {
+		// КРИТИЧНО: Заказ уже в статусе PAID, но транзакции нет
+		// Нужно либо откатить статус, либо вернуть ошибку
+		// Пока возвращаем ошибку, чтобы клиент знал о проблеме
+		return nil, fmt.Errorf("failed to process payment: %w", err)
+	}
+
 	order_pay_resp := &orderV1.PayOrderResponse{
 		//		TransactionUUID: "7b5c38cb-57b9-4f2e-9a0a-c518add9ccaa",
-		TransactionUUID: uuid.New().String(),
+		TransactionUUID: transactionUuid,
 		// тут должен наверное генерироваться uuid транзакции
 	}
 	return order_pay_resp, nil
