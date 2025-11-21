@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
+	"inventory/internal/interceptor"
 	"log"
 	"net"
 	"os"
@@ -390,7 +391,9 @@ func main() {
 		}
 	}()
 
-	s := grpc.NewServer()
+	s := grpc.NewServer(
+		grpc.UnaryInterceptor(interceptor.LoggerInterceptor()),
+	)
 
 	service := &inventoryService{
 		parts: make(map[string]*inventoryV1.Part),

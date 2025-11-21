@@ -23,7 +23,8 @@ import (
 	orderV1 "github.com/mllbll/space-manufacture/shared/pkg/openapi/order/v1"
 
 	paymentV1 "github.com/mllbll/space-manufacture/shared/pkg/proto/payment/v1"
-	//	inventoryV1 "github.com/mllbll/space-manufacture/shared/pkg/proto/inventory/v1"
+
+	inventoryV1 "github.com/mllbll/space-manufacture/shared/pkg/proto/inventory/v1"
 	//
 	// order_v1 "github.com/mllbll/space-manufacture/shared/pkg/openapi/order/v1"
 )
@@ -34,8 +35,8 @@ const (
 	readHeaderTimeout = 5 * time.Second
 	shutdownTimeout   = 10 * time.Second
 	// Порты gRPC сервисов
-	paymentServiceServerAddress               = "localhost:50051"
-	inventorySErrServerClosediceServerAddress = "localhost:50052"
+	paymentServiceServerAddress   = "localhost:50051"
+	inventoryServiceServerAddress = "localhost:50052"
 )
 
 type OrderStorage struct {
@@ -82,6 +83,53 @@ func payOrderCall(req *paymentV1.PayOrderRequest) (string, error) {
 	return resp.TransactionUuid, nil
 }
 
+func inventoryCall(listOfParts []string) (float64, error) {
+	//	if req.Filter == nil {
+	//		return 0.0, fmt.Errorf("Filter is required")
+	//	}
+
+	ctx := context.Background()
+
+	conn, err := grpc.NewClient(
+		inventoryServiceServerAddress,
+		grpc.WithTransportCredentials(insecure.NewCredentials()),
+	)
+
+	if err != nil {
+		log.Printf("failed to connect: %v\n", err)
+		return 0.0, fmt.Errorf("failed to connect to payment service: %w", err)
+	}
+	defer func() {
+		if cerr := conn.Close(); cerr != nil {
+			log.Printf("failed to close connect: %v", cerr)
+		}
+	}()
+
+	client := inventoryV1.NewInventoryServiceClient(conn)
+
+	// мб стоит заменить значения на нули тут
+	getPriceMessage := &inventoryV1.PartsFilter{
+		Uuids:                listOfParts,
+		Names:                nil,
+		Categories:           nil,
+		ManufacturerContries: nil,
+		Tags:                 nil,
+	}
+
+	listParts, err := client.GetListParts(ctx, &inventoryV1.GetListPartsRequest{Filter: getPriceMessage})
+	if err != nil {
+		log.Printf("Не удалось получить детали")
+	}
+
+	var sumPrice float64
+
+	for _, part := range listParts.Parts {
+		sumPrice += part.Price
+	}
+
+	return sumPrice, nil
+}
+
 //мапка ордер хранит UUID и структуру GetOrderResponse
 //но нужно нормально обернуть или сделать в опенапи декларации новую структуру Order потому что хранить в гетордер это не вайб
 //Вроде обернул, но почему то проблемы с видением структуры ордер
@@ -120,11 +168,17 @@ func (s *OrderStorage) CreateOrderByUUID(order_uuid string, order *orderV1.Creat
 	// по идее UUID я должен парсить из созданной структуры
 	//	order_uuid := "62e69f5b-9c60-4017-b095-97ce32e27042" // UUID все еще заглушил
 	//	order_uuid := uuid.New().String()
+
+	totalPrice, err := inventoryCall(order.PartUuids)
+	if err != nil {
+		log.Printf("Ошибка получения общей суммы")
+	}
+
 	new_order := &orderV1.Order{
 		OrderUUID:  order_uuid,
 		UserUUID:   order.UserUUID,
 		PartUuids:  order.PartUuids,
-		TotalPrice: 0.0, // тут тоже заглушка в виде 0 потому что от сервиса другого должна приходить общая стоимость
+		TotalPrice: float32(totalPrice), // идем в inventoryService и получаем список деталей
 		Status:     orderV1.OrderStatusPENDINGPAYMENT,
 	}
 	s.orders[order_uuid] = new_order
@@ -214,11 +268,16 @@ func (h *OrderHandler) AddNewOrder(_ context.Context, req *orderV1.CreateOrderRe
 		PartUuids: req.PartUuids,
 	}
 
+	totalPrice, err := inventoryCall(req.PartUuids)
+	if err != nil {
+		log.Printf("Ошибка получение общей стоимости")
+	}
+
 	order_uuid := uuid.New().String()
 	order_resp := &orderV1.CreateOrderResponse{
 		//		OrderUUID:  orderV1.NewOptString("05b4fe37-7822-4d95-8f1f-76edbcc3c134"), // Заглушил значение UUID до момента пока не напишу норм функцию генерации UUID
 		OrderUUID:  orderV1.NewOptString(order_uuid),
-		TotalPrice: orderV1.NewOptFloat32(12.1),
+		TotalPrice: orderV1.NewOptFloat32(float32(totalPrice)),
 	}
 	h.storage.CreateOrderByUUID(order_uuid, order)
 
