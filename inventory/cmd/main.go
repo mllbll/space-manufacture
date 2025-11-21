@@ -18,7 +18,7 @@ import (
 	inventoryV1 "github.com/mllbll/space-manufacture/shared/pkg/proto/inventory/v1"
 )
 
-const grpcPort = 50051
+const grpcPort = 50052
 
 type inventoryService struct {
 	inventoryV1.UnimplementedInventoryServiceServer
@@ -109,7 +109,8 @@ func (s *inventoryService) GetListParts(_ context.Context, req *inventoryV1.GetL
 
 	var parts []*inventoryV1.Part
 	for _, part := range s.parts {
-		parts = append(parts, part)
+		p := part
+		parts = append(parts, p)
 	}
 
 	// Применяем фильтрацию, если она указана
@@ -160,14 +161,15 @@ func main() {
 		err = s.Serve(lis)
 		if err != nil {
 			log.Printf("failed to serve %v\n", err)
+			return
 		}
 	}()
 
 	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
 	<-quit
-	log.Printf("Shutting down gRPC server ...")
+	log.Println("Shutting down gRPC server ...")
 	s.GracefulStop()
-	log.Printf("Server Stopped")
+	log.Println("Server Stopped")
 
 }
