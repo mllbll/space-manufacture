@@ -142,7 +142,7 @@ func (s *inventoryService) GetPart(ctx context.Context, req *inventoryV1.GetPart
 	return resp, nil
 }
 
-func (s *inventoryService) ListParts(_ context.Context, req *inventoryV1.GetListPartsRequest) (*inventoryV1.GetListPartsResponse, error) {
+func (s *inventoryService) ListParts(_ context.Context, req *inventoryV1.ListPartsRequest) (*inventoryV1.ListPartsResponse, error) {
 	if req == nil {
 		return nil, status.Errorf(codes.InvalidArgument, "request cannot be nil")
 	}
@@ -169,7 +169,7 @@ func (s *inventoryService) ListParts(_ context.Context, req *inventoryV1.GetList
 		}
 	}
 
-	resp := &inventoryV1.GetListPartsResponse{
+	resp := &inventoryV1.ListPartsResponse{
 		Parts: parts,
 	}
 

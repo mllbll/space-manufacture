@@ -25,8 +25,6 @@ import (
 	paymentV1 "github.com/mllbll/space-manufacture/shared/pkg/proto/payment/v1"
 
 	inventoryV1 "github.com/mllbll/space-manufacture/shared/pkg/proto/inventory/v1"
-	//
-	// order_v1 "github.com/mllbll/space-manufacture/shared/pkg/openapi/order/v1"
 )
 
 const (
@@ -83,6 +81,42 @@ func payOrderCall(req *paymentV1.PayOrderRequest) (string, error) {
 	return resp.TransactionUuid, nil
 }
 
+// convertPaymentMethodToOrder преобразует строковый PayOrderRequestPaymentMethod в integer OrderPaymentMethod
+func convertPaymentMethodToOrder(method orderV1.PayOrderRequestPaymentMethod) orderV1.OrderPaymentMethod {
+	switch method {
+	case orderV1.PayOrderRequestPaymentMethodUNKNOWN:
+		return orderV1.OrderPaymentMethod0
+	case orderV1.PayOrderRequestPaymentMethodCARD:
+		return orderV1.OrderPaymentMethod1
+	case orderV1.PayOrderRequestPaymentMethodSBP:
+		return orderV1.OrderPaymentMethod2
+	case orderV1.PayOrderRequestPaymentMethodCREDITCARD:
+		return orderV1.OrderPaymentMethod3
+	case orderV1.PayOrderRequestPaymentMethodINVESTORMONEY:
+		return orderV1.OrderPaymentMethod4
+	default:
+		return orderV1.OrderPaymentMethod0
+	}
+}
+
+// convertPaymentMethodToEnum преобразует строковый PayOrderRequestPaymentMethod в PaymentMethodEnum для payment сервиса
+func convertPaymentMethodToEnum(method orderV1.PayOrderRequestPaymentMethod) paymentV1.PaymentMethodEnum {
+	switch method {
+	case orderV1.PayOrderRequestPaymentMethodUNKNOWN:
+		return paymentV1.PaymentMethodEnum_PAYMENT_METHOD_ENUM_UNSPECIFIED
+	case orderV1.PayOrderRequestPaymentMethodCARD:
+		return paymentV1.PaymentMethodEnum_PAYMENT_METHOD_ENUM_CARD
+	case orderV1.PayOrderRequestPaymentMethodSBP:
+		return paymentV1.PaymentMethodEnum_PAYMENT_METHOD_ENUM_SBP
+	case orderV1.PayOrderRequestPaymentMethodCREDITCARD:
+		return paymentV1.PaymentMethodEnum_PAYMENT_METHOD_ENUM_CREDIT_CARD
+	case orderV1.PayOrderRequestPaymentMethodINVESTORMONEY:
+		return paymentV1.PaymentMethodEnum_PAYMENT_METHOD_ENUM_INVESTOR_MONEY
+	default:
+		return paymentV1.PaymentMethodEnum_PAYMENT_METHOD_ENUM_UNSPECIFIED
+	}
+}
+
 func inventoryCall(listOfParts []string) (float64, error) {
 	//	if req.Filter == nil {
 	//		return 0.0, fmt.Errorf("Filter is required")
@@ -116,7 +150,7 @@ func inventoryCall(listOfParts []string) (float64, error) {
 		Tags:                 nil,
 	}
 
-	listParts, err := client.ListParts(ctx, &inventoryV1.GetListPartsRequest{Filter: getPriceMessage})
+	listParts, err := client.ListParts(ctx, &inventoryV1.ListPartsRequest{Filter: getPriceMessage})
 	if err != nil {
 		log.Printf("Не удалось получить детали")
 	}
@@ -177,6 +211,8 @@ func (s *OrderStorage) CreateOrderByUUID(order_uuid string, order *orderV1.Creat
 		log.Printf("Ошибка получения общей суммы")
 	}
 
+	//	order_uuid := uuid.New().String()
+
 	new_order := &orderV1.Order{
 		OrderUUID:  order_uuid,
 		UserUUID:   order.UserUUID,
@@ -185,6 +221,8 @@ func (s *OrderStorage) CreateOrderByUUID(order_uuid string, order *orderV1.Creat
 		Status:     orderV1.OrderStatusPENDINGPAYMENT,
 	}
 	s.orders[order_uuid] = new_order
+
+	// return user_uuid
 }
 
 func (s *OrderStorage) PayOrderByUUID(order_uuid string, payment_method *orderV1.PayOrderRequest) error {
@@ -205,8 +243,10 @@ func (s *OrderStorage) PayOrderByUUID(order_uuid string, payment_method *orderV1
 		return errors.New("payment method is required")
 		// тут нужно написать обработчик ошибочек
 	}
+	// Преобразуем строковый PayOrderRequestPaymentMethod в integer OrderPaymentMethod
+	orderPaymentMethod := convertPaymentMethodToOrder(method)
 	// проверяем что order[order_uuid] существует и закидываем его в order
-	order.PaymentMethod = orderV1.NewOptOrderPaymentMethod(orderV1.OrderPaymentMethod(method))
+	order.PaymentMethod = orderV1.NewOptOrderPaymentMethod(orderPaymentMethod)
 	order.Status = orderV1.OrderStatusPAID
 
 	return nil
@@ -311,10 +351,12 @@ func (h *OrderHandler) PayOrder(_ context.Context, req *orderV1.PayOrderRequest,
 		return nil, err
 	}
 
+	// Преобразуем строковый PayOrderRequestPaymentMethod в PaymentMethodEnum для payment сервиса
+	paymentMethodEnum := convertPaymentMethodToEnum(method)
 	payOrderMessage := paymentV1.PayOrderMessage{
 		OrderUuid:     params.OrderUUID,
 		UserUuid:      order.UserUUID,
-		PaymentMethod: paymentV1.PaymentMethodEnum(method),
+		PaymentMethod: paymentMethodEnum,
 	}
 	transactionUuid, err := payOrderCall(&paymentV1.PayOrderRequest{PayOrderMessage: &payOrderMessage})
 	if err != nil {

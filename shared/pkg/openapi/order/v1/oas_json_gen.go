@@ -744,7 +744,7 @@ func (o OptPayOrderRequestPaymentMethod) Encode(e *jx.Encoder) {
 	if !o.Set {
 		return
 	}
-	e.Int(int(o.Value))
+	e.Str(string(o.Value))
 }
 
 // Decode decodes PayOrderRequestPaymentMethod from json.
@@ -1154,7 +1154,7 @@ func (s *PayOrderRequest) UnmarshalJSON(data []byte) error {
 
 // Encode encodes PayOrderRequestPaymentMethod as json.
 func (s PayOrderRequestPaymentMethod) Encode(e *jx.Encoder) {
-	e.Int(int(s))
+	e.Str(string(s))
 }
 
 // Decode decodes PayOrderRequestPaymentMethod from json.
@@ -1162,11 +1162,25 @@ func (s *PayOrderRequestPaymentMethod) Decode(d *jx.Decoder) error {
 	if s == nil {
 		return errors.New("invalid: unable to decode PayOrderRequestPaymentMethod to nil")
 	}
-	v, err := d.Int()
+	v, err := d.StrBytes()
 	if err != nil {
 		return err
 	}
-	*s = PayOrderRequestPaymentMethod(v)
+	// Try to use constant string.
+	switch PayOrderRequestPaymentMethod(v) {
+	case PayOrderRequestPaymentMethodUNKNOWN:
+		*s = PayOrderRequestPaymentMethodUNKNOWN
+	case PayOrderRequestPaymentMethodCARD:
+		*s = PayOrderRequestPaymentMethodCARD
+	case PayOrderRequestPaymentMethodSBP:
+		*s = PayOrderRequestPaymentMethodSBP
+	case PayOrderRequestPaymentMethodCREDITCARD:
+		*s = PayOrderRequestPaymentMethodCREDITCARD
+	case PayOrderRequestPaymentMethodINVESTORMONEY:
+		*s = PayOrderRequestPaymentMethodINVESTORMONEY
+	default:
+		*s = PayOrderRequestPaymentMethod(v)
+	}
 
 	return nil
 }

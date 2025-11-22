@@ -4,13 +4,13 @@ required:
   - part_uuids
 properties:
   payment_method:
-    type: integer
-    enum: [0, 1, 2, 3, 4]
+    type: string
+    enum: [UNKNOWN, CARD, SBP, CREDIT_CARD, INVESTOR_MONEY]
     description: |
       Способ оплаты:
-      0 – Неизвестный
-      1 – Банковская карта
-      2 – СБП
-      3 – Кредитная карта
-      4 – Деньги инвестора
-    example: 1
+      UNKNOWN – Неизвестный
+      CARD – Банковская карта
+      SBP – Система быстрых платежей
+      CREDIT_CARD – Кредитная карта
+      INVESTOR_MONEY – Деньги инвестора
+    example: "CARD"

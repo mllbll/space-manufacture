@@ -646,11 +646,11 @@ func (s *OrderStatus) UnmarshalText(data []byte) error {
 // Ref: #/components/schemas/pay_order_request
 type PayOrderRequest struct {
 	// Способ оплаты:
-	// 0 – Неизвестный
-	// 1 – Банковская карта
-	// 2 – СБП
-	// 3 – Кредитная карта
-	// 4 – Деньги инвестора.
+	// UNKNOWN – Неизвестный
+	// CARD – Банковская карта
+	// SBP – Система быстрых платежей
+	// CREDIT_CARD – Кредитная карта
+	// INVESTOR_MONEY – Деньги инвестора.
 	PaymentMethod OptPayOrderRequestPaymentMethod `json:"payment_method"`
 }
 
@@ -665,29 +665,70 @@ func (s *PayOrderRequest) SetPaymentMethod(val OptPayOrderRequestPaymentMethod) 
 }
 
 // Способ оплаты:
-// 0 – Неизвестный
-// 1 – Банковская карта
-// 2 – СБП
-// 3 – Кредитная карта
-// 4 – Деньги инвестора.
-type PayOrderRequestPaymentMethod int
+// UNKNOWN – Неизвестный
+// CARD – Банковская карта
+// SBP – Система быстрых платежей
+// CREDIT_CARD – Кредитная карта
+// INVESTOR_MONEY – Деньги инвестора.
+type PayOrderRequestPaymentMethod string
 
 const (
-	PayOrderRequestPaymentMethod0 PayOrderRequestPaymentMethod = 0
-	PayOrderRequestPaymentMethod1 PayOrderRequestPaymentMethod = 1
-	PayOrderRequestPaymentMethod2 PayOrderRequestPaymentMethod = 2
-	PayOrderRequestPaymentMethod3 PayOrderRequestPaymentMethod = 3
-	PayOrderRequestPaymentMethod4 PayOrderRequestPaymentMethod = 4
+	PayOrderRequestPaymentMethodUNKNOWN       PayOrderRequestPaymentMethod = "UNKNOWN"
+	PayOrderRequestPaymentMethodCARD          PayOrderRequestPaymentMethod = "CARD"
+	PayOrderRequestPaymentMethodSBP           PayOrderRequestPaymentMethod = "SBP"
+	PayOrderRequestPaymentMethodCREDITCARD    PayOrderRequestPaymentMethod = "CREDIT_CARD"
+	PayOrderRequestPaymentMethodINVESTORMONEY PayOrderRequestPaymentMethod = "INVESTOR_MONEY"
 )
 
 // AllValues returns all PayOrderRequestPaymentMethod values.
 func (PayOrderRequestPaymentMethod) AllValues() []PayOrderRequestPaymentMethod {
 	return []PayOrderRequestPaymentMethod{
-		PayOrderRequestPaymentMethod0,
-		PayOrderRequestPaymentMethod1,
-		PayOrderRequestPaymentMethod2,
-		PayOrderRequestPaymentMethod3,
-		PayOrderRequestPaymentMethod4,
+		PayOrderRequestPaymentMethodUNKNOWN,
+		PayOrderRequestPaymentMethodCARD,
+		PayOrderRequestPaymentMethodSBP,
+		PayOrderRequestPaymentMethodCREDITCARD,
+		PayOrderRequestPaymentMethodINVESTORMONEY,
+	}
+}
+
+// MarshalText implements encoding.TextMarshaler.
+func (s PayOrderRequestPaymentMethod) MarshalText() ([]byte, error) {
+	switch s {
+	case PayOrderRequestPaymentMethodUNKNOWN:
+		return []byte(s), nil
+	case PayOrderRequestPaymentMethodCARD:
+		return []byte(s), nil
+	case PayOrderRequestPaymentMethodSBP:
+		return []byte(s), nil
+	case PayOrderRequestPaymentMethodCREDITCARD:
+		return []byte(s), nil
+	case PayOrderRequestPaymentMethodINVESTORMONEY:
+		return []byte(s), nil
+	default:
+		return nil, errors.Errorf("invalid value: %q", s)
+	}
+}
+
+// UnmarshalText implements encoding.TextUnmarshaler.
+func (s *PayOrderRequestPaymentMethod) UnmarshalText(data []byte) error {
+	switch PayOrderRequestPaymentMethod(data) {
+	case PayOrderRequestPaymentMethodUNKNOWN:
+		*s = PayOrderRequestPaymentMethodUNKNOWN
+		return nil
+	case PayOrderRequestPaymentMethodCARD:
+		*s = PayOrderRequestPaymentMethodCARD
+		return nil
+	case PayOrderRequestPaymentMethodSBP:
+		*s = PayOrderRequestPaymentMethodSBP
+		return nil
+	case PayOrderRequestPaymentMethodCREDITCARD:
+		*s = PayOrderRequestPaymentMethodCREDITCARD
+		return nil
+	case PayOrderRequestPaymentMethodINVESTORMONEY:
+		*s = PayOrderRequestPaymentMethodINVESTORMONEY
+		return nil
+	default:
+		return errors.Errorf("invalid value: %q", data)
 	}
 }
 

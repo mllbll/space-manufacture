@@ -14,6 +14,8 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
 
+	"payment/internal/interceptor"
+
 	paymentV1 "github.com/mllbll/space-manufacture/shared/pkg/proto/payment/v1"
 )
 
@@ -65,7 +67,9 @@ func main() {
 		}
 	}()
 
-	s := grpc.NewServer()
+	s := grpc.NewServer(
+		grpc.UnaryInterceptor(interceptor.LoggerInterceptor()),
+	)
 
 	service := &paymentService{
 		payOrderMessages: make(map[string]*paymentV1.PayOrderMessage),
