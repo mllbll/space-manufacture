@@ -120,6 +120,9 @@ func inventoryCall(listOfParts []string) (float64, error) {
 	if err != nil {
 		log.Printf("Не удалось получить детали")
 	}
+	if len(listParts.Parts) != len(listOfParts) {
+		log.Printf("Ошибка: не удалось получить всех деталей")
+	}
 
 	var sumPrice float64
 
