@@ -116,7 +116,7 @@ func inventoryCall(listOfParts []string) (float64, error) {
 		Tags:                 nil,
 	}
 
-	listParts, err := client.GetListParts(ctx, &inventoryV1.GetListPartsRequest{Filter: getPriceMessage})
+	listParts, err := client.ListParts(ctx, &inventoryV1.GetListPartsRequest{Filter: getPriceMessage})
 	if err != nil {
 		log.Printf("Не удалось получить детали")
 	}
