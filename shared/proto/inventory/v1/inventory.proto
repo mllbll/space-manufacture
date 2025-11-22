@@ -12,7 +12,7 @@ service InventoryService {
   rpc GetPart(GetPartRequest) returns (GetPartResponse);
 
 // Возвращает список деталей с возможностью фильтрации.
-  rpc GetListParts(GetListPartsRequest) returns (GetListPartsResponse);
+  rpc ListParts(ListPartsRequest) returns (ListPartsResponse);
 }
 
 // Информация о заказе
@@ -142,14 +142,14 @@ message GetPartResponse {
   Part parts = 1;
 }
 
-// GetListPartsRequest запрос на получение списка деталей с возможностью фильтрации
-message GetListPartsRequest {
+// ListPartsRequest запрос на получение списка деталей с возможностью фильтрации
+message ListPartsRequest {
   // Фильтр по деталям (все поля опциональны)
   PartsFilter filter = 1;
 }
 
-// GetListPartsResponse ответ со списком найденных деталей
-message GetListPartsResponse {
+// ListPartsResponse ответ со списком найденных деталей
+message ListPartsResponse {
   // Список найденных деталей
   repeated Part parts = 1;
 }
