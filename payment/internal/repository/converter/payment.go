@@ -15,8 +15,8 @@ func PayOrderMessageToRepoModel(message model.PayOrderMessage) repoModel.PayOrde
 
 func PayOrderMessageToModel(message repoModel.PayOrderMessage) model.PayOrderMessage {
 	return model.PayOrderMessage{
-		OrderUUID: message.OrderUUID,
-		UserUUID: message.UserUUID,
+		OrderUUID:     message.OrderUUID,
+		UserUUID:      message.UserUUID,
 		PaymentMethod: model.PaymentMethodEnum(message.PaymentMethod),
 	} // конвертация типов
 }
@@ -39,7 +39,7 @@ func PayOrderResponseToRepoModel(res model.PayOrderResponse) repoModel.PayOrderR
 	}
 }
 
-func PayOrderResponseToModel (res repoModel.PayOrderResponse) model.PayOrderResponse {
+func PayOrderResponseToModel(res repoModel.PayOrderResponse) model.PayOrderResponse {
 	return model.PayOrderResponse{
 		TransactionUUID: res.TransactionUUID,
 	}

@@ -1,24 +1,21 @@
 package main
 
 import (
-	"context"
 	"fmt"
 	"log"
 	"net"
 	"os"
 	"os/signal"
-	"sync"
 	"syscall"
 
-	"github.com/google/uuid"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
 
-	"payment/internal/interceptor"
+	"github.com/mllbll/space-manufacture/payment/internal/interceptor"
 
-	paymentV1API "github.com/mllbll/space-manufacture/payment/internal/payment/v1"
-	paymentRepository "github.com/space-manufacture/payment/internal/repository/payment"
-	paymentService "github.com/space-manufacture/payment/internal/service/payment"
+	paymentV1API "github.com/mllbll/space-manufacture/payment/internal/api/payment/v1"
+	paymentRepository "github.com/mllbll/space-manufacture/payment/internal/repository/payment"
+	paymentService "github.com/mllbll/space-manufacture/payment/internal/service/payment"
 
 	paymentV1 "github.com/mllbll/space-manufacture/shared/pkg/proto/payment/v1"
 )
