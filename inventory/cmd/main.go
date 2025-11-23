@@ -81,7 +81,7 @@ func ListParts(parts []inventoryV1.Part, filter inventoryV1.PartsFilter) []inven
 
 		if len(filter.ManufacturerContries) > 0 {
 			if part.Manufacturer == nil || !containsString(filter.ManufacturerContries, part.Manufacturer.Country) {
-				continue
+			continue
 			}
 		}
 

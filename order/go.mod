@@ -9,8 +9,6 @@ require (
 	google.golang.org/grpc v1.76.0
 )
 
-replace github.com/mllbll/space-manufacture/shared => ../shared
-
 require (
 	github.com/dlclark/regexp2 v1.11.5 // indirect
 	github.com/fatih/color v1.18.0 // indirect

@@ -8,8 +8,6 @@ require (
 	google.golang.org/protobuf v1.36.10
 )
 
-replace github.com/mllbll/space-manufacture/shared => ../shared
-
 require (
 	golang.org/x/net v0.44.0 // indirect
 	golang.org/x/sys v0.36.0 // indirect
