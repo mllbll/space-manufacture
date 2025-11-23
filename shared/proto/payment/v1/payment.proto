@@ -1,0 +1,38 @@
+syntax = "proto3";
+package payment.v1;
+
+//import "google/protobuf/timestamp.proto";
+//import "google/protobuf/wrappers.proto";
+//import "google/protobuf/empty.proto";
+
+option go_package = "github.com/mllbll/space_manufacture/shared/pkg/proto/payment/v1;payment_v1";
+
+// PaymentService
+service PaymentService{
+  rpc PayOrder(PayOrderRequest) returns (PayOrderResponse);
+}
+// enum структура для описания вариантов оплаты
+enum PaymentMethodEnum {
+  PAYMENT_METHOD_ENUM_UNSPECIFIED = 0;
+  PAYMENT_METHOD_ENUM_CARD = 1;
+  PAYMENT_METHOD_ENUM_SBP = 2;
+  PAYMENT_METHOD_ENUM_CREDIT_CARD = 3;
+  PAYMENT_METHOD_ENUM_INVESTOR_MONEY = 4;
+}
+// запрос который приходит от OrderService
+message PayOrderMessage{
+  string order_uuid = 1;
+
+  string user_uuid = 2;
+
+  PaymentMethodEnum payment_method = 3;
+}
+// Responce для OrderService
+message PayOrderResponse {
+  string transaction_uuid = 1;
+}
+// обертка ответа от PaymentService
+message PayOrderRequest {
+  PayOrderMessage pay_order_message = 1;
+}
+

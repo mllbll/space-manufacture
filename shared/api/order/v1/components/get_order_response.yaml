@@ -4,8 +4,8 @@ required:
   - user_uuid
   - part_uuids
   - total_price
-  - transaction_uuid
-  - paymen_method
+#  - transaction_uuid
+#  - payment_method
   - status
 properties:
   order_uuid:
@@ -23,33 +23,45 @@ properties:
     description: Список UUID деталей
     example: "['58478a62-8b91-4f0b-8e14-3f7eccfa5ad4', 'abb0ce26-9a98-4dcb-96be-ca87d1517b71']"
   total_price:
-    type: float
+    type: number
+    format: float
     description: Итоговая стоимость
     example: "123.45"
   transaction_uuid:
     type: string
     description: uuid транзакции (если оплачен)
     example: "eddc9b62-5d9b-4927-9e20-85bfd177c863"
-  paymen_method:
+  payment_method:
     type: integer
-    oneOf:
-      - const: 0
-        title: UNKNOWN
-        description: Неизвестный способ
-      - const: 1
-        title: CARD
-        description: Банковская карта
-      - const: 2
-        title: SBP
-        description: Система быстрых платежей
-      - const: 3
-        title: CREDIT_CARD
-        description: Кредитная карта
-      - const: 4
-        title: INVESTOR_MONEY
-        description: Деньги инвестора
-    description: способ оплаты (если оплачен)
-    example: "CARD"
+    enum: [0, 1, 2, 3, 4]
+    description: |
+      Способ оплаты:
+      0 – Неизвестный
+      1 – Банковская карта
+      2 – СБП
+      3 – Кредитная карта
+      4 – Деньги инвестора
+    example: 1
+#  paymen_method:
+#    type: integer
+#    oneOf:
+#      - const: 0
+#        title: UNKNOWN
+#        description: Неизвестный способ
+#      - const: 1
+#        title: CARD
+#        description: Банковская карта
+#      - const: 2
+#        title: SBP
+#        description: Система быстрых платежей
+#      - const: 3
+#        title: CREDIT_CARD
+#        description: Кредитная карта
+#      - const: 4
+#        title: INVESTOR_MONEY
+#        description: Деньги инвестора
+#    description: способ оплаты (если оплачен)
+#    example: "CARD"
   status:
     type: string
     enum: [PENDING_PAYMENT, PAID, CANCELLED]

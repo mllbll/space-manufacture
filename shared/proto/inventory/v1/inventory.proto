@@ -1,0 +1,156 @@
+syntax ="proto3";
+
+package inventory.v1;
+
+import "google/protobuf/timestamp.proto";
+
+option go_package = "github.com/mllbll/space_manufacture/shared/pkg/proto/inventory/v1;inventory_v1";
+
+// InventoryService  отвечающий за хранение и предоставление информации о деталях для сборки космических кораблей.
+service InventoryService {
+// Возвращает информацию о детали по её UUID.
+  rpc GetPart(GetPartRequest) returns (GetPartResponse);
+
+// Возвращает список деталей с возможностью фильтрации.
+  rpc ListParts(ListPartsRequest) returns (ListPartsResponse);
+}
+
+// Информация о заказе
+message Part {
+  // Уникальный идентификатор заказа
+  string uuid = 1;
+
+  // Название детали
+  string name = 2;
+
+  // Описание детали
+  string description = 3;
+
+  //Цена за единицу
+  double price = 4;
+
+  // Количество на складе
+  int64 stock_quantity = 5;
+
+  //Категория
+  Category category = 6;
+
+  // Размер детали
+  Dimensions dimensions = 7;
+
+  // Информация о производителе
+  Manufacturer manufacturer = 8;
+
+  // Теги для быстрого поика (слайс строк)
+  repeated string tags = 9;
+
+  // Гибкие метаданные
+  map<string, Value> metadata = 10;
+
+  // Дата создания
+  google.protobuf.Timestamp created_at = 11;
+
+  // Дата обновления
+  google.protobuf.Timestamp updated_at = 12;
+}
+
+// enum структура для перечисления категорий
+enum Category {
+  // неизветсная категория
+  CATEGORY_UNKNOWN_UNSPECIFIED = 0;
+  // Двигатель
+  CATEGORY_ENGINE = 1;
+  // Топливо
+  CATEGORY_FUEL = 2;
+  // Иллюминатор
+  CATEGORY_PORTHOLE = 3;
+  // Крыло
+  CATEGORY_WING = 4;
+}
+
+// Размеры детали
+message Dimensions {
+  // Длина в см
+  double length = 1;
+
+  // Ширина в см
+  double width = 2;
+
+  // Высота в см
+  double height = 3;
+
+  // Вес в кг
+  double weight = 4;
+}
+
+// Производитель
+message Manufacturer {
+  // Название
+  string name = 1;
+
+  //Страна производителя
+  string country = 2;
+
+  // Сайт производителя
+  string website = 3;
+}
+
+// Value для metadata
+message Value {
+  oneof types {
+  // Строковое значение
+  string string_value = 1;
+
+  // Целое значение
+  int64 int64_value = 2;
+
+  // Дробное значение
+  double double_value = 3;
+
+  // Логическое значение
+  bool bool_value = 4;
+  }
+}
+
+// Фильтр по деталям, все поля опциональны
+message PartsFilter {
+  // Список UUID'ов. Пусто - не фильтруем по UUID
+  repeated string uuids = 1;
+
+  // Список имен. Пусто - не фильтруем по имени
+  repeated string names = 2;
+
+  // Список категорий. Пусто - не фильтруем по категории
+  repeated Category categories = 3;
+
+  // Список стран производителей. Пусто - не фильтруем по стране
+  repeated string manufacturer_contries = 4;
+
+  // Список тегов. Пусто - не фильтруем по тегам
+  repeated string tags = 5;
+}
+
+// GetPartRequest запрос на получение информации о детали по ее UUID
+message GetPartRequest {
+  // Идентификатор детали
+  string uuid = 1;
+}
+
+// GetPartResponse ответ с инфорацией о детали
+message GetPartResponse {
+  // Вся информация о детали
+  Part parts = 1;
+}
+
+// ListPartsRequest запрос на получение списка деталей с возможностью фильтрации
+message ListPartsRequest {
+  // Фильтр по деталям (все поля опциональны)
+  PartsFilter filter = 1;
+}
+
+// ListPartsResponse ответ со списком найденных деталей
+message ListPartsResponse {
+  // Список найденных деталей
+  repeated Part parts = 1;
+}
+

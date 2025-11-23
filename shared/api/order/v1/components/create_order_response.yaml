@@ -8,7 +8,8 @@ properties:
     description: Уникальный идентификатор заказа (UUID)
     example: "eddc9b62-5d9b-4927-9e20-85bfd177c863"
   total_price:
-    type: float
+    type: number
+    format: float
     description: Итоговая стоимость
     example: "123.45"
  
