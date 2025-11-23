@@ -1,4 +1,4 @@
-module payment
+module github.com/mllbll/space-manufacture/payment
 
 go 1.25.1
 
@@ -9,6 +9,7 @@ require (
 )
 
 require (
+	github.com/mllbll/space-manufacture v0.0.0-20251123184355-75fa1476c3dc // indirect
 	golang.org/x/net v0.44.0 // indirect
 	golang.org/x/sys v0.36.0 // indirect
 	golang.org/x/text v0.29.0 // indirect
