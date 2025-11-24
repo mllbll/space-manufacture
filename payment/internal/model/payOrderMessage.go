@@ -1,11 +1,9 @@
 package model
 
-import ()
-
 type PayOrderMessage struct {
-	OrderUUID     string
-	UserUUID      string
-	PaymentMethod PaymentMethodEnum
+	order_uuid     string
+	user_uuid      string
+	payment_method PaymentMethodEnum
 }
 
 type PaymentMethodEnum int32
@@ -19,9 +17,9 @@ const (
 )
 
 type PayOrderResponse struct {
-	TransactionUUID string
+	transaction_uuid string
 }
 
 type PayOrderRequest struct {
-	PayOrderMessage PayOrderMessage
+	payOrderMessage PayOrderMessage
 }
