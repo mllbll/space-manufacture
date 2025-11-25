@@ -23,7 +23,7 @@ type Part struct {
 	Category Category
 
 	// Размер детали
-	Dimentions Dimentions
+	Dimensions Dimensions
 
 	// Информация о производителе
 	Manufacturer Manufacturer
@@ -35,16 +35,16 @@ type Part struct {
 	Metadata map[string]Value
 
 	// Дата создания
-	created_at *time.Time
+	CreatedAt *time.Time
 
 	// Дата обновления
-	updated_at *time.Time
+	UpdatedAt *time.Time
 }
 
 // размеры детали
-type Dimentions struct {
+type Dimensions struct {
 	// Длина в см
-	Lenght float64
+	Length float64
 
 	//Ширина в см
 	Width float64
