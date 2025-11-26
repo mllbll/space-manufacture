@@ -1,7 +1,6 @@
 type: object
 required:
-  - user_uuid
-  - part_uuids
+  - payment_method
 properties:
   payment_method:
     type: string

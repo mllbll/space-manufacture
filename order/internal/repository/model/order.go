@@ -13,16 +13,16 @@ type Order struct {
 	PartUUIDs []string
 
 	//Итоговая стоимость
-	TotalPrice float64
+	TotalPrice float32
 
 	//uuid транзакции (если оплачен)
 	TransactionUUID *string
 
-	//статус оплаты (если оплачен)
-	status *string
-
 	//способ оплаты
-	PaymentMethod PaymentMethodEnum
+	PaymentMethod *PaymentMethodEnum
+
+	//статус оплаты (если оплачен)
+	Status string
 }
 
 // Enum структура для методов оплаты
@@ -49,20 +49,38 @@ type CreateOrderRequest struct {
 
 
 type CreateOrderResponse struct {
-	UserUUID string
+	OrderUUID string
 
-	PartUUIDs []string
+	TotalPrice float32
 }
+
 
 type GetOrderResponce struct {
-	Order Order
-}
+	// Уникальный идентификатор заказа (UUID)
+	OrderUUID string
 
-
-type PayOrderRequest struct {
+	//UUID пользователя
 	UserUUID string
 
+	//Список UUID деталей
 	PartUUIDs []string
+
+	//Итоговая стоимость
+	TotalPrice float32
+
+	//uuid транзакции (если оплачен)
+	TransactionUUID *string
+
+	//способ оплаты
+	PaymentMethod *PaymentMethodEnum
+
+	//статус оплаты
+	Status string
+
+}
+
+type PayOrderRequest struct {
+	PaymentMethod PaymentMethodEnum
 }
 
 type PayOrderResponse struct {

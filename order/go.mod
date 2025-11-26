@@ -1,4 +1,4 @@
-module order
+module github.com/mllbll/space-manufacture/order
 
 go 1.25.1
 
@@ -6,6 +6,7 @@ require (
 	github.com/go-chi/chi/v5 v5.2.3
 	github.com/google/uuid v1.6.0
 	github.com/mllbll/space-manufacture/shared v0.0.0-20251120002658-2a9579ad7967
+	github.com/samber/lo v1.52.0
 	google.golang.org/grpc v1.76.0
 )
 
