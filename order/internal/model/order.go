@@ -81,3 +81,7 @@ type PayOrderRequest struct {
 type PayOrderResponse struct {
 	TransactionUUID string
 }
+
+type GetOrderParams struct {
+	OrderUUID string
+}

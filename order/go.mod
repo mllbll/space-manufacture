@@ -41,3 +41,4 @@ require (
 )
 
 replace github.com/mllbll/space-manufacture/shared => ../shared
+replace github.com/mllbll/space-manufacture/order/internal/client => ../order/internal/client
