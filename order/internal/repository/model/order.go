@@ -1,7 +1,5 @@
 package model
 
-import ()
-
 type Order struct {
 	// Уникальный идентификатор заказа (UUID)
 	OrderUUID string
@@ -30,13 +28,13 @@ type PaymentMethodEnum int32
 
 const (
 	//Неизвестный способ
-	PAYMENT_METHOD_ENUM_UNSPECIFIED    PaymentMethodEnum = 0
+	PAYMENT_METHOD_ENUM_UNSPECIFIED PaymentMethodEnum = 0
 	// Банковская карта
-	PAYMENT_METHOD_ENUM_CARD           PaymentMethodEnum = 1
+	PAYMENT_METHOD_ENUM_CARD PaymentMethodEnum = 1
 	//Система быстрых платежей
-	PAYMENT_METHOD_ENUM_SBP            PaymentMethodEnum = 2
+	PAYMENT_METHOD_ENUM_SBP PaymentMethodEnum = 2
 	//Кредитная карта
-	PAYMENT_METHOD_ENUM_CREDIT_CARD    PaymentMethodEnum = 3
+	PAYMENT_METHOD_ENUM_CREDIT_CARD PaymentMethodEnum = 3
 	//Деньги инвестора
 	PAYMENT_METHOD_ENUM_INVESTOR_MONEY PaymentMethodEnum = 4
 )
@@ -47,13 +45,11 @@ type CreateOrderRequest struct {
 	PartUUIDs []string
 }
 
-
 type CreateOrderResponse struct {
 	OrderUUID string
 
 	TotalPrice float32
 }
-
 
 type GetOrderResponce struct {
 	// Уникальный идентификатор заказа (UUID)
@@ -76,7 +72,6 @@ type GetOrderResponce struct {
 
 	//статус оплаты
 	Status string
-
 }
 
 type PayOrderRequest struct {

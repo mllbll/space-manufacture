@@ -17,13 +17,13 @@ func OrderToModel(req *orderV1.Order) model.Order {
 		paymentMethod = lo.ToPtr(model.PaymentMethodEnum(req.PaymentMethod.Value))
 	}
 	return model.Order{
-		OrderUUID: req.OrderUUID,
-		UserUUID: req.UserUUID,
-		PartUUIDs: req.PartUuids,
-		TotalPrice: req.TotalPrice,
+		OrderUUID:       req.OrderUUID,
+		UserUUID:        req.UserUUID,
+		PartUUIDs:       req.PartUuids,
+		TotalPrice:      req.TotalPrice,
 		TransactionUUID: transactionUUID,
-		Status: string(req.Status),
-		PaymentMethod: paymentMethod,
+		Status:          string(req.Status),
+		PaymentMethod:   paymentMethod,
 	}
 }
 
@@ -39,40 +39,41 @@ func OrderToOpenAPI(req model.Order) *orderV1.Order {
 		paymentMethod = orderV1.NewOptOrderPaymentMethod(orderV1.OrderPaymentMethod(*req.PaymentMethod))
 	}
 	return &orderV1.Order{
-		OrderUUID: req.OrderUUID,
-		UserUUID: req.UserUUID,
-		PartUuids: req.PartUUIDs,
-		TotalPrice: float32(req.TotalPrice),
+		OrderUUID:       req.OrderUUID,
+		UserUUID:        req.UserUUID,
+		PartUuids:       req.PartUUIDs,
+		TotalPrice:      float32(req.TotalPrice),
 		TransactionUUID: transactionUUID,
-		Status: orderV1.OrderStatus(req.Status),
-		PaymentMethod: paymentMethod,
+		Status:          orderV1.OrderStatus(req.Status),
+		PaymentMethod:   paymentMethod,
 	}
 }
 
 func CreateOrderRequestToModel(req *orderV1.CreateOrderRequest) model.CreateOrderRequest {
 	return model.CreateOrderRequest{
-		UserUUID: req.UserUUID,
+		UserUUID:  req.UserUUID,
 		PartUUIDs: req.PartUuids,
 	}
 }
 
 func CreateOrderRequestToOpenAPI(req model.CreateOrderRequest) *orderV1.CreateOrderRequest {
 	return &orderV1.CreateOrderRequest{
-		UserUUID: req.UserUUID,
+		UserUUID:  req.UserUUID,
 		PartUuids: req.PartUUIDs,
 	}
 }
 
 func CreateOrderResponseToModel(req *orderV1.CreateOrderResponse) model.CreateOrderResponse {
 	return model.CreateOrderResponse{
-		OrderUUID: req.OrderUUID.Value,
-		TotalPrice: req.TotalPrice.Value,
+		OrderUUID:  req.OrderUUID,
+		TotalPrice: req.TotalPrice,
 	}
 }
 
 func CreateOrderResponseToOpenAPI(req model.CreateOrderResponse) *orderV1.CreateOrderResponse {
 	return &orderV1.CreateOrderResponse{
-		OrderUUID: req.OrderUUID,
+		// нужно разобраться почему тут ОПТполя
+		OrderUUID:  req.OrderUUID,
 		TotalPrice: req.TotalPrice,
 	}
 }
@@ -81,15 +82,15 @@ func PayOrderRequestToModel(req *orderV1.PayOrderRequest) model.PayOrderRequest 
 	// Конвертируем PayOrderRequestPaymentMethod (string) в model.PaymentMethodEnum (int32)
 	var paymentMethod model.PaymentMethodEnum
 	switch req.PaymentMethod {
-	case orderV1.NewOptPayOrderRequestPaymentMethod(orderV1.PayOrderRequestPaymentMethod0):
+	case orderV1.PayOrderRequestPaymentMethodUNKNOWN:
 		paymentMethod = model.PAYMENT_METHOD_ENUM_UNSPECIFIED
-	case orderV1.NewOptPayOrderRequestPaymentMethod(orderV1.PayOrderRequestPaymentMethod1):
+	case orderV1.PayOrderRequestPaymentMethodCARD:
 		paymentMethod = model.PAYMENT_METHOD_ENUM_CARD
-	case orderV1.NewOptPayOrderRequestPaymentMethod(orderV1.PayOrderRequestPaymentMethod2):
+	case orderV1.PayOrderRequestPaymentMethodSBP:
 		paymentMethod = model.PAYMENT_METHOD_ENUM_SBP
-	case orderV1.NewOptPayOrderRequestPaymentMethod(orderV1.PayOrderRequestPaymentMethod3):
+	case orderV1.PayOrderRequestPaymentMethodCREDITCARD:
 		paymentMethod = model.PAYMENT_METHOD_ENUM_CREDIT_CARD
-	case orderV1.NewOptPayOrderRequestPaymentMethod(orderV1.PayOrderRequestPaymentMethod4):
+	case orderV1.PayOrderRequestPaymentMethodINVESTORMONEY:
 		paymentMethod = model.PAYMENT_METHOD_ENUM_INVESTOR_MONEY
 	default:
 		paymentMethod = model.PAYMENT_METHOD_ENUM_UNSPECIFIED
@@ -105,21 +106,21 @@ func PayOrderRequestToOpenAPI(req model.PayOrderRequest) *orderV1.PayOrderReques
 	var paymentMethod orderV1.PayOrderRequestPaymentMethod
 	switch req.PaymentMethod {
 	case model.PAYMENT_METHOD_ENUM_UNSPECIFIED:
-		paymentMethod = orderV1.PayOrderRequestPaymentMethod0
+		paymentMethod = orderV1.PayOrderRequestPaymentMethodUNKNOWN
 	case model.PAYMENT_METHOD_ENUM_CARD:
-		paymentMethod = orderV1.PayOrderRequestPaymentMethod1
+		paymentMethod = orderV1.PayOrderRequestPaymentMethodCARD
 	case model.PAYMENT_METHOD_ENUM_SBP:
-		paymentMethod = orderV1.PayOrderRequestPaymentMethod2
+		paymentMethod = orderV1.PayOrderRequestPaymentMethodSBP
 	case model.PAYMENT_METHOD_ENUM_CREDIT_CARD:
-		paymentMethod = orderV1.PayOrderRequestPaymentMethod3
+		paymentMethod = orderV1.PayOrderRequestPaymentMethodCREDITCARD
 	case model.PAYMENT_METHOD_ENUM_INVESTOR_MONEY:
-		paymentMethod = orderV1.PayOrderRequestPaymentMethod4
+		paymentMethod = orderV1.PayOrderRequestPaymentMethodINVESTORMONEY
 	default:
-		paymentMethod = orderV1.PayOrderRequestPaymentMethod4
+		paymentMethod = orderV1.PayOrderRequestPaymentMethodUNKNOWN
 	}
 
 	return &orderV1.PayOrderRequest{
-		PaymentMethod: orderV1.NewOptPayOrderRequestPaymentMethod(paymentMethod),
+		PaymentMethod: paymentMethod,
 	}
 }
 
@@ -134,16 +135,15 @@ func GetOrderResponseToModel(req *orderV1.Order) model.GetOrderResponce {
 		paymentMethod = lo.ToPtr(model.PaymentMethodEnum(req.PaymentMethod.Value))
 	}
 	return model.GetOrderResponce{
-		OrderUUID: req.OrderUUID,
-		UserUUID: req.UserUUID,
-		PartUUIDs: req.PartUuids,
-		TotalPrice: req.TotalPrice,
+		OrderUUID:       req.OrderUUID,
+		UserUUID:        req.UserUUID,
+		PartUUIDs:       req.PartUuids,
+		TotalPrice:      req.TotalPrice,
 		TransactionUUID: transactionUUID,
-		Status: string(req.Status),
-		PaymentMethod: paymentMethod,
+		Status:          string(req.Status),
+		PaymentMethod:   paymentMethod,
 	}
 }
-
 
 func GetOrderResponseToOpenAPI(req model.GetOrderResponce) *orderV1.Order {
 
@@ -157,13 +157,13 @@ func GetOrderResponseToOpenAPI(req model.GetOrderResponce) *orderV1.Order {
 		paymentMethod = orderV1.NewOptOrderPaymentMethod(orderV1.OrderPaymentMethod(*req.PaymentMethod))
 	}
 	return &orderV1.Order{
-		OrderUUID: req.OrderUUID,
-		UserUUID: req.UserUUID,
-		PartUuids: req.PartUUIDs,
-		TotalPrice: float32(req.TotalPrice),
+		OrderUUID:       req.OrderUUID,
+		UserUUID:        req.UserUUID,
+		PartUuids:       req.PartUUIDs,
+		TotalPrice:      float32(req.TotalPrice),
 		TransactionUUID: transactionUUID,
-		Status: orderV1.OrderStatus(req.Status),
-		PaymentMethod: paymentMethod,
+		Status:          orderV1.OrderStatus(req.Status),
+		PaymentMethod:   paymentMethod,
 	}
 }
 
@@ -178,5 +178,3 @@ func PayOrderResponseToOpenAPI(req model.PayOrderResponse) *orderV1.PayOrderResp
 		TransactionUUID: req.TransactionUUID,
 	}
 }
-
-
