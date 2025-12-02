@@ -11,8 +11,8 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-func (a *api) Pay(ctx context.Context,params *generatedOrder.PayOrderParams, req *generatedOrder.PayOrderRequest) (*generatedOrder.PayOrderResponse, error) {
-	order, err := a.orderService.Pay(ctx, params.OrderUUID, converter.PayOrderRequestToModel(req))
+func (a *api) AddNewOrder(ctx context.Context, req *generatedOrder.CreateOrderRequest) (generatedOrder.AddNewOrderRes, error) {
+	resp, err := a.orderService.Create(ctx, converter.CreateOrderRequestToModel(req))
 	if err != nil {
 		if errors.Is(err, model.ErrOrderNotFound) {
 			return nil, status.Errorf(codes.NotFound, "Order no found")
@@ -20,7 +20,7 @@ func (a *api) Pay(ctx context.Context,params *generatedOrder.PayOrderParams, req
 		return nil, err
 	}
 
-	return converter.PayOrderResponseToOpenAPI(order), nil
+	return converter.CreateOrderResponseToOpenAPI(resp), nil
 }
 
 

@@ -23,6 +23,8 @@ func (r *repository) Get(_ context.Context, params string) (model.GetOrderRespon
 		PartUUIDs:       order.PartUUIDs,
 		TotalPrice:      order.TotalPrice,
 		TransactionUUID: order.TransactionUUID,
+		Status: order.Status,
+		PaymentMethod: order.PaymentMethod,
 	}
 
 	return repoConvertet.GetOrderResponseToModel(resp), nil

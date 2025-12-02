@@ -15,5 +15,9 @@ func (r *repository) Cancel(ctx context.Context, param string) (model.Order, err
 	if !ok {
 		return model.Order{}, model.ErrOrderNotFound
 	}
+
+	order.Status = "CANCELLED"
+	r.data[param] = order
+
 	return repoConverter.OrderToModel(order), nil
 }
