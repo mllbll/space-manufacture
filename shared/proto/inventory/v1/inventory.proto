@@ -4,7 +4,7 @@ package inventory.v1;
 
 import "google/protobuf/timestamp.proto";
 
-option go_package = "github.com/mllbll/space_manufacture/shared/pkg/proto/inventory/v1;inventory_v1";
+option go_package = "github.com/mllbll/space-manufacture/shared/pkg/proto/inventory/v1;inventory_v1";
 
 // InventoryService  отвечающий за хранение и предоставление информации о деталях для сборки космических кораблей.
 service InventoryService {

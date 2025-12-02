@@ -1,58 +1,26 @@
 package main
 
 import (
-	"context"
 	"fmt"
 	"log"
 	"net"
 	"os"
 	"os/signal"
-	"sync"
 	"syscall"
 
-	"github.com/google/uuid"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
 
-	"payment/internal/interceptor"
+	"github.com/mllbll/space-manufacture/payment/internal/interceptor"
+
+	paymentV1API "github.com/mllbll/space-manufacture/payment/internal/api/payment/v1"
+	paymentRepository "github.com/mllbll/space-manufacture/payment/internal/repository/payment"
+	paymentService "github.com/mllbll/space-manufacture/payment/internal/service/payment"
 
 	paymentV1 "github.com/mllbll/space-manufacture/shared/pkg/proto/payment/v1"
 )
 
 const grpcPort = 50051
-
-type paymentService struct {
-	paymentV1.UnimplementedPaymentServiceServer
-	// мапка со значениями transaction_uuid:payOrderMessage
-	mu               sync.RWMutex
-	payOrderMessages map[string]*paymentV1.PayOrderMessage
-}
-
-func (s *paymentService) PayOrder(_ context.Context, req *paymentV1.PayOrderRequest) (*paymentV1.PayOrderResponse, error) {
-	s.mu.Lock()
-	defer s.mu.Unlock()
-
-	if req.PayOrderMessage == nil {
-		return nil, fmt.Errorf("pay_order_message is required")
-	}
-
-	newTransactionUUID := uuid.New().String()
-
-	newPayOrderMessage := &paymentV1.PayOrderMessage{
-		OrderUuid:     req.PayOrderMessage.OrderUuid,
-		UserUuid:      req.PayOrderMessage.UserUuid,
-		PaymentMethod: req.PayOrderMessage.PaymentMethod,
-	}
-
-	s.payOrderMessages[newTransactionUUID] = newPayOrderMessage
-
-	log.Printf("Оплата прошла успешно, transaction_uuid: %s", newTransactionUUID)
-
-	return &paymentV1.PayOrderResponse{
-		TransactionUuid: newTransactionUUID,
-	}, nil
-
-}
 
 func main() {
 	lis, err := net.Listen("tcp", fmt.Sprintf(":%d", grpcPort))
@@ -67,16 +35,19 @@ func main() {
 		}
 	}()
 
+	// создаем grpc сервер с интерсептором logger
 	s := grpc.NewServer(
 		grpc.UnaryInterceptor(interceptor.LoggerInterceptor()),
 	)
 
-	service := &paymentService{
-		payOrderMessages: make(map[string]*paymentV1.PayOrderMessage),
-	}
+	// регистрируем сервис
+	repo := paymentRepository.NewRepository()
+	service := paymentService.NewService(repo)
+	api := paymentV1API.NewAPI(service)
 
-	paymentV1.RegisterPaymentServiceServer(s, service)
+	paymentV1.RegisterPaymentServiceServer(s, api)
 
+	// включаем рефлексию
 	reflection.Register(s)
 
 	go func() {

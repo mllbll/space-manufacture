@@ -1,14 +1,13 @@
-module inventory
+module github.com/mllbll/space-manufacture/inventory
 
 go 1.25.1
 
 require (
 	github.com/mllbll/space-manufacture/shared v0.0.0-20251122152415-84e18afe73f2
+	github.com/samber/lo v1.52.0
 	google.golang.org/grpc v1.76.0
 	google.golang.org/protobuf v1.36.10
 )
-
-replace github.com/mllbll/space-manufacture/shared => ../shared
 
 require (
 	golang.org/x/net v0.44.0 // indirect

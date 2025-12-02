@@ -295,8 +295,8 @@ components:
     create_order_response:
       type: object
       required:
-        - user_uuid
-        - part_uuids
+        - order_uuid
+        - total_price
       properties:
         order_uuid:
           type: string
@@ -310,8 +310,7 @@ components:
     pay_order_request:
       type: object
       required:
-        - user_uuid
-        - part_uuids
+        - payment_method
       properties:
         payment_method:
           type: string

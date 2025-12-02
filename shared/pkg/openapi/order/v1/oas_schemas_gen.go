@@ -92,28 +92,28 @@ func (s *CreateOrderRequest) SetPartUuids(val []string) {
 // Ref: #/components/schemas/create_order_response
 type CreateOrderResponse struct {
 	// Уникальный идентификатор заказа (UUID).
-	OrderUUID OptString `json:"order_uuid"`
+	OrderUUID string `json:"order_uuid"`
 	// Итоговая стоимость.
-	TotalPrice OptFloat32 `json:"total_price"`
+	TotalPrice float32 `json:"total_price"`
 }
 
 // GetOrderUUID returns the value of OrderUUID.
-func (s *CreateOrderResponse) GetOrderUUID() OptString {
+func (s *CreateOrderResponse) GetOrderUUID() string {
 	return s.OrderUUID
 }
 
 // GetTotalPrice returns the value of TotalPrice.
-func (s *CreateOrderResponse) GetTotalPrice() OptFloat32 {
+func (s *CreateOrderResponse) GetTotalPrice() float32 {
 	return s.TotalPrice
 }
 
 // SetOrderUUID sets the value of OrderUUID.
-func (s *CreateOrderResponse) SetOrderUUID(val OptString) {
+func (s *CreateOrderResponse) SetOrderUUID(val string) {
 	s.OrderUUID = val
 }
 
 // SetTotalPrice sets the value of TotalPrice.
-func (s *CreateOrderResponse) SetTotalPrice(val OptFloat32) {
+func (s *CreateOrderResponse) SetTotalPrice(val float32) {
 	s.TotalPrice = val
 }
 
@@ -242,52 +242,6 @@ func (*NotFoundError) addNewOrderRes()             {}
 func (*NotFoundError) cancelOrderRes()             {}
 func (*NotFoundError) payOrderRes()                {}
 
-// NewOptFloat32 returns new OptFloat32 with value set to v.
-func NewOptFloat32(v float32) OptFloat32 {
-	return OptFloat32{
-		Value: v,
-		Set:   true,
-	}
-}
-
-// OptFloat32 is optional float32.
-type OptFloat32 struct {
-	Value float32
-	Set   bool
-}
-
-// IsSet returns true if OptFloat32 was set.
-func (o OptFloat32) IsSet() bool { return o.Set }
-
-// Reset unsets value.
-func (o *OptFloat32) Reset() {
-	var v float32
-	o.Value = v
-	o.Set = false
-}
-
-// SetTo sets value to v.
-func (o *OptFloat32) SetTo(v float32) {
-	o.Set = true
-	o.Value = v
-}
-
-// Get returns value and boolean that denotes whether value was set.
-func (o OptFloat32) Get() (v float32, ok bool) {
-	if !o.Set {
-		return v, false
-	}
-	return o.Value, true
-}
-
-// Or returns value if set, or given parameter if does not.
-func (o OptFloat32) Or(d float32) float32 {
-	if v, ok := o.Get(); ok {
-		return v
-	}
-	return d
-}
-
 // NewOptInt returns new OptInt with value set to v.
 func NewOptInt(v int) OptInt {
 	return OptInt{
@@ -374,52 +328,6 @@ func (o OptOrderPaymentMethod) Get() (v OrderPaymentMethod, ok bool) {
 
 // Or returns value if set, or given parameter if does not.
 func (o OptOrderPaymentMethod) Or(d OrderPaymentMethod) OrderPaymentMethod {
-	if v, ok := o.Get(); ok {
-		return v
-	}
-	return d
-}
-
-// NewOptPayOrderRequestPaymentMethod returns new OptPayOrderRequestPaymentMethod with value set to v.
-func NewOptPayOrderRequestPaymentMethod(v PayOrderRequestPaymentMethod) OptPayOrderRequestPaymentMethod {
-	return OptPayOrderRequestPaymentMethod{
-		Value: v,
-		Set:   true,
-	}
-}
-
-// OptPayOrderRequestPaymentMethod is optional PayOrderRequestPaymentMethod.
-type OptPayOrderRequestPaymentMethod struct {
-	Value PayOrderRequestPaymentMethod
-	Set   bool
-}
-
-// IsSet returns true if OptPayOrderRequestPaymentMethod was set.
-func (o OptPayOrderRequestPaymentMethod) IsSet() bool { return o.Set }
-
-// Reset unsets value.
-func (o *OptPayOrderRequestPaymentMethod) Reset() {
-	var v PayOrderRequestPaymentMethod
-	o.Value = v
-	o.Set = false
-}
-
-// SetTo sets value to v.
-func (o *OptPayOrderRequestPaymentMethod) SetTo(v PayOrderRequestPaymentMethod) {
-	o.Set = true
-	o.Value = v
-}
-
-// Get returns value and boolean that denotes whether value was set.
-func (o OptPayOrderRequestPaymentMethod) Get() (v PayOrderRequestPaymentMethod, ok bool) {
-	if !o.Set {
-		return v, false
-	}
-	return o.Value, true
-}
-
-// Or returns value if set, or given parameter if does not.
-func (o OptPayOrderRequestPaymentMethod) Or(d PayOrderRequestPaymentMethod) PayOrderRequestPaymentMethod {
 	if v, ok := o.Get(); ok {
 		return v
 	}
@@ -651,16 +559,16 @@ type PayOrderRequest struct {
 	// SBP – Система быстрых платежей
 	// CREDIT_CARD – Кредитная карта
 	// INVESTOR_MONEY – Деньги инвестора.
-	PaymentMethod OptPayOrderRequestPaymentMethod `json:"payment_method"`
+	PaymentMethod PayOrderRequestPaymentMethod `json:"payment_method"`
 }
 
 // GetPaymentMethod returns the value of PaymentMethod.
-func (s *PayOrderRequest) GetPaymentMethod() OptPayOrderRequestPaymentMethod {
+func (s *PayOrderRequest) GetPaymentMethod() PayOrderRequestPaymentMethod {
 	return s.PaymentMethod
 }
 
 // SetPaymentMethod sets the value of PaymentMethod.
-func (s *PayOrderRequest) SetPaymentMethod(val OptPayOrderRequestPaymentMethod) {
+func (s *PayOrderRequest) SetPaymentMethod(val PayOrderRequestPaymentMethod) {
 	s.PaymentMethod = val
 }
 

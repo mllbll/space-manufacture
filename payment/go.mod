@@ -1,4 +1,4 @@
-module payment
+module github.com/mllbll/space-manufacture/payment
 
 go 1.25.1
 
