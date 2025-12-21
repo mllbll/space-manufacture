@@ -279,14 +279,18 @@ tasks:
     cmds:
       - |
         echo "🧪 Запускаем расчёт покрытия..."
-        rm -rf {{.COVERAGE_DIR}}
-        mkdir -p {{.COVERAGE_DIR}}
+        COVERAGE_DIR="{{.COVERAGE_DIR}}"
+        rm -rf "$COVERAGE_DIR"
+        mkdir -p "$COVERAGE_DIR"
         
         ERR=0
         for mod in {{.MODULES}}; do
+          if [ ! -d "$mod" ]; then
+            continue
+          fi
           echo "📦 Обрабатываем модуль: $mod"
         
-          TARGET_PKGS=$(go list ./$mod/... \
+          TARGET_PKGS=$(cd "$mod" && go list ./... \
             | grep -E '/(internal/(service|repository))' \
             | grep -vE '/(mocks|testdata|pkg|api|proto|pb|cmd)' \
             | paste -sd "," -)
@@ -296,10 +300,10 @@ tasks:
             continue
           fi
         
-          go test -coverpkg="$TARGET_PKGS" \
-            -coverprofile={{.COVERAGE_DIR}}/$mod.out \
+          (cd "$mod" && go test -coverpkg="$TARGET_PKGS" \
+            -coverprofile="$COVERAGE_DIR/$mod.out" \
             -covermode=atomic \
-            $(echo "$TARGET_PKGS" | tr "," " ") || ERR=1
+            ./...) || ERR=1
         done
         
         if [ $ERR -ne 0 ]; then
@@ -310,7 +314,7 @@ tasks:
         echo
         echo "📊 Покрытие по каждому модулю:"
         for mod in {{.MODULES}}; do
-          OUTFILE="{{.COVERAGE_DIR}}/$mod.out"
+          OUTFILE="$COVERAGE_DIR/$mod.out"
           if [ -f "$OUTFILE" ]; then
             printf " • %s: " "$mod"
             go tool cover -func="$OUTFILE" | tail -n1
@@ -321,13 +325,13 @@ tasks:
         echo "📦 Склеиваем все покрытия..."
         {
           echo "mode: atomic"
-          find {{.COVERAGE_DIR}} -type f -name '*.out' ! -name '{{.COVERAGE_FILE}}' \
+          find "$COVERAGE_DIR" -type f -name '*.out' ! -name '{{.COVERAGE_FILE}}' \
             -exec grep -h -v "^mode:" {} +
-        } > {{.COVERAGE_DIR}}/{{.COVERAGE_FILE}}
+        } > "$COVERAGE_DIR/{{.COVERAGE_FILE}}"
         
         echo
         echo "🧾 Общее покрытие по всем модулям:"
-        go tool cover -func={{.COVERAGE_DIR}}/{{.COVERAGE_FILE}} | tail -n1
+        go tool cover -func="$COVERAGE_DIR/{{.COVERAGE_FILE}}" | tail -n1
 
   coverage:html:
     desc: "Генерирует HTML-отчёт покрытия и открывает его в браузере"
@@ -359,6 +363,7 @@ tasks:
           if [ -d "$mod" ]; then
             echo "🧪 Тестируем модуль $mod"
             go test -v ./$mod/... || ERR=1
+            #cd "$mod" && go test -v ./... || ERR=1
           fi
         done
         exit $ERR
