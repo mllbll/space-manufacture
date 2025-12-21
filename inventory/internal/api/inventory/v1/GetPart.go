@@ -17,6 +17,7 @@ func (a *api) GetPart(ctx context.Context, req *inventoryV1.GetPartRequest) (*in
 		if errors.Is(err, model.ErrPartNotFound) {
 			return nil, status.Errorf(codes.NotFound, "part with UUID %s not found", req.Uuid)
 		}
+		return nil, err
 	}
 	return converter.GetPartResponceToProto(model.GetPartResponse{Parts: parts.Parts}), nil
 }

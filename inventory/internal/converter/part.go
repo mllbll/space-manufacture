@@ -22,6 +22,7 @@ func DimensionsToProto(info model.Dimensions) *inventoryV1.Dimensions {
 		Length: info.Length,
 		Width: info.Width,
 		Height: info.Height,
+		Weight: info.Weight,
 	}
 }
 
