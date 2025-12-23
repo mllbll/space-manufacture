@@ -13,6 +13,9 @@ func (s *service) Pay(ctx context.Context, param string, req model.PayOrderReque
 	}
 	// Идем в пеймент и получаем transaction_uuid
 	transaction_uuid, err := s.paymentClient.PayOrder(ctx, order.OrderUUID, order.UserUUID, req)
+	if err != nil {
+		return model.PayOrderResponse{}, err
+	}
 
 	err = s.orderRepository.Pay(ctx, param, req, transaction_uuid)
 	if err != nil {
