@@ -10,7 +10,7 @@ import (
 var _ def.OrderRepository = (*repository)(nil)
 
 type repository struct {
-	mu sync.RWMutex
+	mu   sync.RWMutex
 	data map[string]repoModel.Order
 }
 
@@ -19,5 +19,3 @@ func NewRepository() *repository {
 		data: make(map[string]repoModel.Order),
 	}
 }
-
-
