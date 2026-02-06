@@ -17,13 +17,14 @@ import (
 	"google.golang.org/grpc/credentials/insecure"
 
 	orderAPI "github.com/mllbll/space-manufacture/order/internal/api/order/v1"
-	paymentClientV1 "github.com/mllbll/space-manufacture/order/internal/client/grpc/payment/v1"
+	"github.com/mllbll/space-manufacture/order/internal/client/db"
 	inventoryClientV1 "github.com/mllbll/space-manufacture/order/internal/client/grpc/inventory/v1"
+	paymentClientV1 "github.com/mllbll/space-manufacture/order/internal/client/grpc/payment/v1"
 	orderRepository "github.com/mllbll/space-manufacture/order/internal/repository/order"
 	orderService "github.com/mllbll/space-manufacture/order/internal/service/order"
 	orderV1 "github.com/mllbll/space-manufacture/shared/pkg/openapi/order/v1"
-	paymentV1 "github.com/mllbll/space-manufacture/shared/pkg/proto/payment/v1"
 	inventoryV1 "github.com/mllbll/space-manufacture/shared/pkg/proto/inventory/v1"
+	paymentV1 "github.com/mllbll/space-manufacture/shared/pkg/proto/payment/v1"
 )
 
 const (
@@ -62,9 +63,18 @@ func main() {
 
 	inventoryGeneratedClient := inventoryV1.NewInventoryServiceClient(inventoryConn)
 	inventoryClient := inventoryClientV1.NewClient(inventoryGeneratedClient)
+	
+	// Открываем коннект с БД
+	database, err := db.NewDB()
+	if err != nil {
+		log.Fatalf("failed to connect to database: %v", err)
+	}
+	
+	// Закрываем коннект что бы не висел
+	defer database.Close()
 
 	// Создаем слои приложения
-	repo := orderRepository.NewRepository()
+	repo := orderRepository.NewPostgresRepository(database)
 	service := orderService.NewService(repo, paymentClient, inventoryClient)
 	api := orderAPI.NewAPI(service)
 

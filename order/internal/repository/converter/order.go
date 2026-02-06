@@ -3,6 +3,7 @@ package converter
 import (
 	"github.com/mllbll/space-manufacture/order/internal/model"
 	repoModel "github.com/mllbll/space-manufacture/order/internal/repository/model"
+
 )
 
 func OrderToModel(req repoModel.Order) model.Order {
@@ -13,7 +14,7 @@ func OrderToModel(req repoModel.Order) model.Order {
 		TotalPrice:      req.TotalPrice,
 		TransactionUUID: req.TransactionUUID,
 		Status:          req.Status,
-		PaymentMethod:   (*model.PaymentMethodEnum)(req.PaymentMethod),
+		PaymentMethod:   Int32ToPaymentMethodEmum(req.PaymentMethod),
 	}
 }
 
@@ -25,8 +26,24 @@ func OrderToRepoModel(req model.Order) repoModel.Order {
 		TotalPrice:      req.TotalPrice,
 		TransactionUUID: req.TransactionUUID,
 		Status:          req.Status,
-		PaymentMethod:   (*repoModel.PaymentMethodEnum)(req.PaymentMethod),
+		PaymentMethod:   PaymentMethodEnumToInt32(req.PaymentMethod),
 	}
+}
+
+func Int32ToPaymentMethodEmum(req *int32) *model.PaymentMethodEnum {
+	if req == nil {
+		return nil
+	}
+	res := model.PaymentMethodEnum(*req)
+	return &res
+}
+
+func PaymentMethodEnumToInt32(req *model.PaymentMethodEnum) *int32 {
+	if req == nil {
+		return nil
+	}
+	res := int32(*req)
+	return &res
 }
 
 func CreateOrderRequestToModel(req repoModel.CreateOrderRequest) model.CreateOrderRequest {
@@ -59,13 +76,13 @@ func CreateOrderResponseToRepoModel(req model.CreateOrderResponse) repoModel.Cre
 
 func PayOrderRequestToModel(req repoModel.PayOrderRequest) model.PayOrderRequest {
 	return model.PayOrderRequest{
-		PaymentMethod: model.PaymentMethodEnum(req.PaymentMethod),
+		PaymentMethod: *Int32ToPaymentMethodEmum(&req.PaymentMethod),
 	}
 }
 
 func PayOrderRequestToRepoModel(req model.PayOrderRequest) repoModel.PayOrderRequest {
 	return repoModel.PayOrderRequest{
-		PaymentMethod: repoModel.PaymentMethodEnum(req.PaymentMethod),
+		PaymentMethod: int32(req.PaymentMethod),
 	}
 }
 
@@ -77,7 +94,7 @@ func GetOrderResponseToModel(req repoModel.GetOrderResponce) model.GetOrderRespo
 		TotalPrice:      req.TotalPrice,
 		TransactionUUID: req.TransactionUUID,
 		Status:          req.Status,
-		PaymentMethod:   (*model.PaymentMethodEnum)(req.PaymentMethod),
+		PaymentMethod:   Int32ToPaymentMethodEmum(req.PaymentMethod),
 	}
 }
 
@@ -89,7 +106,7 @@ func GetOrderResponseToRepoModel(req model.GetOrderResponce) repoModel.GetOrderR
 		TotalPrice:      req.TotalPrice,
 		TransactionUUID: req.TransactionUUID,
 		Status:          req.Status,
-		PaymentMethod:   (*repoModel.PaymentMethodEnum)(req.PaymentMethod),
+		PaymentMethod:   PaymentMethodEnumToInt32(req.PaymentMethod),
 	}
 }
 
