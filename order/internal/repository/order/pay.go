@@ -2,27 +2,31 @@ package order
 
 import (
 	"context"
+	"log"
 
+	sq "github.com/Masterminds/squirrel"
 	"github.com/mllbll/space-manufacture/order/internal/model"
-	repoModel "github.com/mllbll/space-manufacture/order/internal/repository/model"
-	"github.com/samber/lo"
 )
 
-func (r *repository) Pay(ctx context.Context, param string, req model.PayOrderRequest, transactionUUID string) error {
+func (r *postgresRepository) Pay(ctx context.Context, param string, req model.PayOrderRequest, transactionUUID string) error {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 
-	order, ok := r.data[param]
-	if !ok {
-		return model.ErrOrderNotFound
+	payBuilder := sq.Update("orders").PlaceholderFormat(sq.Dollar).Set("status", "PAID").Set("transaction_uuid", transactionUUID).Set("payment_method", req.PaymentMethod).Where(sq.Eq{"order_uuid": param})
+
+	query, args, err := payBuilder.ToSql()
+	if err != nil {
+		return err
 	}
 
-	order.Status = "PAID"
-	order.TransactionUUID = lo.ToPtr(transactionUUID)
-	order.PaymentMethod = lo.ToPtr(repoModel.PAYMENT_METHOD_ENUM_UNSPECIFIED)
+	res, err := r.pool.Exec(ctx, query, args...)
+	if err != nil {
+		log.Printf("failed to update order : %v\n", err)
+		return err
+	}
 
-	r.data[param] = order
-
+	if res.RowsAffected() == 0 {
+		return model.ErrOrderNotFound
+	}
 	return nil
-
 }

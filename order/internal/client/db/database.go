@@ -7,7 +7,9 @@ import (
 	"os"
 
 	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/jackc/pgx/v5/stdlib"
 	"github.com/joho/godotenv"
+	"github.com/mllbll/space-manufacture/order/internal/migrator"
 )
 
 type DB struct {
@@ -34,6 +36,15 @@ func NewDB() (*DB, error) {
 	if err := pool.Ping(ctx); err != nil {
 		pool.Close()
 		return nil, fmt.Errorf("failed to ping database %w", err)
+	}
+
+	migrationDir := os.Getenv("MIGRATIONS_DIR")
+	migratorRunner := migrator.NewMigrator(stdlib.OpenDBFromPool(pool), migrationDir)
+
+	err = migratorRunner.Up()
+	if err != nil {
+		log.Printf("Ошибка миграции бд %v\n", err)
+		return nil, err
 	}
 
 	return &DB{pool: pool}, nil
