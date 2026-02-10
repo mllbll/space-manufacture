@@ -1,44 +1,49 @@
 package model
 
-import "time"
+import (
+	"time"
+
+	"go.mongodb.org/mongo-driver/bson/primitive"
+)
 
 // информация о заказе
 type Part struct {
+	ID primitive.ObjectID		`bson:"_id,omitempty"`
 	//Уникальный идентификатор заказа
-	UUID string
+	UUID string `bson:"uuid"`
 
 	// Название детали
-	Name string
+	Name string  `bson:"name"`
 
 	// Описание детали
-	Description string
+	Description string  `bson:"description"`
 
 	//Цена за единицу
-	Price float64
+	Price float64  `bson:"price"`
 
 	// Количество на складе
-	Stock_quantity int64
+	Stock_quantity int64  `bson:"stock_quantity"`
 
 	//Категория
-	Category Category
+	Category int32		`bson:"category"`
 
 	// Размер детали
-	Dimensions Dimensions
+	Dimensions Dimensions  `bson:"dimensions"`
 
 	// Информация о производителе
-	Manufacturer Manufacturer
+	Manufacturer Manufacturer		`bson:"manufacturer"`
 
 	// Теги для быстрого поика (слайс строк)
-	Tags []string
+	Tags []string		`bson:"tags"`
 
 	// Гибкие метаданные
-	Metadata map[string]Value
+	Metadata map[string]interface{}		`bson:"metadata,omitempty"`
 
 	// Дата создания
-	CreatedAt *time.Time
+	CreatedAt *time.Time		`bson:"created_at,omitempty"`
 
 	// Дата обновления
-	UpdatedAt *time.Time
+	UpdatedAt *time.Time		`bson:"updated_at,omitempty"`
 }
 
 // размеры детали

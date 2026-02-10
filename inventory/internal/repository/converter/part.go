@@ -107,24 +107,85 @@ func ValueToModel(val repoModel.Value) model.Value {
 	}
 }
 
-func MetadataToRepoModel(metadata map[string]model.Value) map[string]repoModel.Value {
-	if metadata == nil {
-		return nil
+// func MetadataToRepoModel(metadata map[string]model.Value) map[string]repoModel.Value {
+// 	if metadata == nil {
+// 		return nil
+// 	}
+// 	result := make(map[string]repoModel.Value, len(metadata))
+// 	for k, v := range metadata {
+// 		result[k] = ValueToRepoModel(v)
+// 	}
+// 	return result
+// }
+//
+// func MetadataToModel(metadata map[string]repoModel.Value) map[string]model.Value {
+// 	if metadata == nil {
+// 		return nil
+// 	}
+// 	result := make(map[string]model.Value, len(metadata))
+// 	for k, v := range metadata {
+// 		result[k] = ValueToModel(v)
+// 	}
+// 	return result
+// }
+
+func MetadataToModel (m map[string]interface{}) map[string]model.Value {
+	if m == nil {
+		return nil 
 	}
-	result := make(map[string]repoModel.Value, len(metadata))
-	for k, v := range metadata {
-		result[k] = ValueToRepoModel(v)
+	result := make(map[string]model.Value, len(m))
+
+	for k ,v := range m {
+		if v == nil {
+			continue
+		}
+
+		switch val := v.(type) {
+		case string:
+			result[k] = model.StringValue{Value: val}
+		case int:
+			result[k] = model.Int64Value{Value: int64(val)}
+		case int32:
+			result[k] = model.Int64Value{Value: int64(val)}
+		case int64:
+			result[k] = model.Int64Value{Value: val}
+		case bool:
+			result[k] = model.BoolValue{Value: val}
+		case float64:
+			if val == float64(int64(val)) {
+				result[k] = model.Int64Value{Value: int64(val)}
+			} else {
+				result[k] = model.DoubleValue{Value: val}
+			}
+		case float32:
+			result[k] = model.DoubleValue{Value: float64(val)}
+		}
 	}
 	return result
 }
 
-func MetadataToModel(metadata map[string]repoModel.Value) map[string]model.Value {
-	if metadata == nil {
+func MetadataToRepoModel (m map[string]model.Value) map[string]interface{} {
+	if m == nil {
 		return nil
 	}
-	result := make(map[string]model.Value, len(metadata))
-	for k, v := range metadata {
-		result[k] = ValueToModel(v)
+
+	result := make(map[string]interface{}, len(m))
+	
+	for k, v := range m {
+		if v == nil {
+			continue
+		}
+
+		switch val := v.(type) {
+		case model.Int64Value:
+			result[k] = val.Value
+		case model.BoolValue:
+			result[k] = val.Value
+		case model.DoubleValue:
+			result[k] = val.Value
+		case model.StringValue:
+			result[k] = val.Value
+		}
 	}
 	return result
 }
@@ -136,7 +197,7 @@ func PartToRepoModel(info model.Part) repoModel.Part {
 		Description: info.Description,
 		Price: info.Price,
 		Stock_quantity: info.Stock_quantity,
-		Category: repoModel.Category(info.Category),
+		Category: int32(info.Category),
 		Dimensions: DimensionsToRepoModel(info.Dimensions),
 		Manufacturer: ManufacturerToRepoModel(info.Manufacturer),
 		Tags: info.Tags,

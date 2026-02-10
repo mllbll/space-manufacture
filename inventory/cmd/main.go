@@ -1,13 +1,16 @@
 package main
 
 import (
+	"context"
 	"fmt"
-	"github.com/mllbll/space-manufacture/inventory/internal/interceptor"
 	"log"
 	"net"
 	"os"
 	"os/signal"
 	"syscall"
+
+	"github.com/mllbll/space-manufacture/inventory/internal/client/db"
+	"github.com/mllbll/space-manufacture/inventory/internal/interceptor"
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
@@ -37,10 +40,20 @@ func main() {
 		grpc.UnaryInterceptor(interceptor.LoggerInterceptor()),
 	)
 
+	database, err := db.NewDb()
+	if err != nil {
+		log.Printf("Ошибка создания коннекта с базой данных: %v\n", err)
+	}
+
 	// регистрируем сервис
-	repo := inventoryRepository.NewRepository()
+	repo := inventoryRepository.NewMongoCollection(database.GetDataBase())
 	// Инициализируем тестовые данные
-	repo.InitTestData()
+	if err := repo.InitData(context.Background()); err != nil {
+		log.Printf("init data: %v", err)
+	}
+
+	defer database.Close()
+
 	service := inventoryService.NewService(repo)
 	api := inventoryV1API.NewAPI(service)
 

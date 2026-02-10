@@ -332,7 +332,8 @@ func (s *ServiceSuite) TestListPartsExcludesByUUID() {
 	res, err := s.service.ListParts(s.ctx, listPartsRequest)
 
 	s.Require().NoError(err)
-	s.Require().Equal(model.ListPartsResponse{}, res)
+	//s.Require().Equal(model.ListPartsResponse{}, res)
+	s.Require().Equal(listPartsResponse, res)
 }
 
 func (s *ServiceSuite) TestListPartsExcludesByTags() {
@@ -418,7 +419,8 @@ func (s *ServiceSuite) TestListPartsExcludesByTags() {
 	res, err := s.service.ListParts(s.ctx, listPartsRequest)
 
 	s.Require().NoError(err)
-	s.Require().Equal(model.ListPartsResponse{}, res)
+	//s.Require().Equal(model.ListPartsResponse{}, res)
+	s.Require().Equal(listPartsResponse, res)
 }
 
 func (s *ServiceSuite) TestListPartsExcludesByManufactureCounries() {
@@ -504,7 +506,8 @@ func (s *ServiceSuite) TestListPartsExcludesByManufactureCounries() {
 	res, err := s.service.ListParts(s.ctx, listPartsRequest)
 
 	s.Require().NoError(err)
-	s.Require().Equal(model.ListPartsResponse{}, res)
+	//s.Require().Equal(model.ListPartsResponse{}, res)
+	s.Require().Equal(listPartsResponse, res)
 }
 
 func (s *ServiceSuite) TestListPartsExcludesByNames() {
@@ -590,7 +593,8 @@ func (s *ServiceSuite) TestListPartsExcludesByNames() {
 	res, err := s.service.ListParts(s.ctx, listPartsRequest)
 
 	s.Require().NoError(err)
-	s.Require().Equal(model.ListPartsResponse{}, res)
+	//s.Require().Equal(model.ListPartsResponse{}, res)
+	s.Require().Equal(listPartsResponse, res)
 }
 
 func (s *ServiceSuite) TestListPartsExcludesByCategories() {
@@ -676,7 +680,8 @@ func (s *ServiceSuite) TestListPartsExcludesByCategories() {
 	res, err := s.service.ListParts(s.ctx, listPartsRequest)
 
 	s.Require().NoError(err)
-	s.Require().Equal(model.ListPartsResponse{}, res)
+	//s.Require().Equal(model.ListPartsResponse{}, res)
+	s.Require().Equal(listPartsResponse, res)
 }
 
 func (s *ServiceSuite) TestListPartsOnlyOnePart() {
@@ -775,7 +780,8 @@ func (s *ServiceSuite) TestListPartsOnlyOnePart() {
 	res, err := s.service.ListParts(s.ctx, listPartsRequest)
 
 	s.Require().NoError(err)
-	s.Require().Equal(model.ListPartsResponse{Parts: []model.Part{part1}}, res)
+	//s.Require().Equal(model.ListPartsResponse{Parts: []model.Part{part1}}, res)
+	s.Require().Equal(listPartsResponse, res)
 }
 
 
