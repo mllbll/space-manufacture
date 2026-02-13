@@ -2,10 +2,10 @@ package db
 
 import (
 	"context"
+	"fmt"
 	"log"
-	"os"
 
-	"github.com/joho/godotenv"
+	"github.com/mllbll/space-manufacture/inventory/internal/config"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
@@ -15,17 +15,16 @@ type DB struct {
 	db     *mongo.Database
 }
 
+const configPath = "./../deploy/compose/inventory/.env"
+
 func NewDb() (*DB, error) {
 	ctx := context.Background()
 
-	err := godotenv.Load(".env")
+	err := config.Load(configPath)
 	if err != nil {
-		log.Printf("failed to load .env file: %v\n", err)
-		return nil, err
+		panic(fmt.Errorf("failed to load config: %w", err))
 	}
-	dbURI := os.Getenv("MONGO_URI")
-
-	client, err := mongo.Connect(ctx, options.Client().ApplyURI(dbURI))
+	client, err := mongo.Connect(ctx, options.Client().ApplyURI(config.AppConfig().Mongo.URI()))
 	if err != nil {
 		log.Printf("failed to connect to mongo database: %v\n", err)
 		return nil, err
