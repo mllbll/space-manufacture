@@ -4,6 +4,7 @@ go 1.25.1
 
 require (
 	github.com/brianvoe/gofakeit/v7 v7.12.1
+	github.com/caarlos0/env/v11 v11.3.1
 	github.com/joho/godotenv v1.5.1
 	github.com/mllbll/space-manufacture/shared v0.0.0-20251122152415-84e18afe73f2
 	github.com/samber/lo v1.52.0
