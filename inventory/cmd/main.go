@@ -57,6 +57,8 @@ func main() {
 	// Инициализируем тестовые данные
 	if err := repo.InitData(context.Background()); err != nil {
 		log.Printf("init data: %v", err)
+	} else {
+		log.Print("Тестовые данные успешно инициализированы!")
 	}
 
 	defer database.Close()

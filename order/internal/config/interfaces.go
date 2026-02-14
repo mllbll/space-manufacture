@@ -12,6 +12,7 @@ type OrderHTTPConfig interface {
 type PostgresConfig interface {
 	URI() string
 	DatabaseName() string
+	MigrationDir() string
 }
 
 type InventoryGRPCConfig interface {

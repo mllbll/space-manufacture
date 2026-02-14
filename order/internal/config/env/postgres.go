@@ -12,6 +12,7 @@ type postgresEnvConfig struct {
 	Database string `env:"POSTGRES_DB,required"`
 	User     string `env:"POSTGRES_USER,required"`
 	Password string `env:"POSTGRES_PASSWORD,required"`
+	MigrationDir string `env:"MIGRATION_DIRECTORY"`
 }
 
 type postgresConfig struct {
@@ -42,6 +43,10 @@ func (cfg *postgresConfig) URI () string {
 
 func (cfg *postgresConfig) DatabaseName() string {
 	return cfg.raw.Database
+}
+
+func (cfg *postgresConfig) MigrationDir() string {
+	return cfg.raw.MigrationDir
 }
 
 

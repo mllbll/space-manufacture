@@ -3,8 +3,8 @@ package main
 import (
 	"context"
 	"errors"
+	"fmt"
 	"log"
-	"net"
 	"net/http"
 	"os"
 	"os/signal"
@@ -20,6 +20,7 @@ import (
 	"github.com/mllbll/space-manufacture/order/internal/client/db"
 	inventoryClientV1 "github.com/mllbll/space-manufacture/order/internal/client/grpc/inventory/v1"
 	paymentClientV1 "github.com/mllbll/space-manufacture/order/internal/client/grpc/payment/v1"
+	"github.com/mllbll/space-manufacture/order/internal/config"
 	orderRepository "github.com/mllbll/space-manufacture/order/internal/repository/order"
 	orderService "github.com/mllbll/space-manufacture/order/internal/service/order"
 	orderV1 "github.com/mllbll/space-manufacture/shared/pkg/openapi/order/v1"
@@ -27,20 +28,33 @@ import (
 	paymentV1 "github.com/mllbll/space-manufacture/shared/pkg/proto/payment/v1"
 )
 
+const configPath = "./../deploy/compose/order/.env"
+
 const (
-	httpPort = "8080"
 	// Таймауты для HTTP-сервера
 	readHeaderTimeout = 5 * time.Second
 	shutdownTimeout   = 10 * time.Second
-	// Порты gRPC сервисов
-	paymentServiceServerAddress   = "localhost:50051"
-	inventoryServiceServerAddress = "localhost:50052"
 )
 
+// const (
+// 	httpPort = "8080"
+// 	// Таймауты для HTTP-сервера
+// 	readHeaderTimeout = 5 * time.Second
+// 	shutdownTimeout   = 10 * time.Second
+// 	// Порты gRPC сервисов
+// 	paymentServiceServerAddress   = "localhost:50051"
+// 	inventoryServiceServerAddress = "localhost:50052"
+// )
+
 func main() {
+	err := config.Load(configPath)
+	if err != nil {
+		panic(fmt.Errorf("failed to load config:%w", err))
+	}
+
 	// Создаем gRPC соединения
 	paymentConn, err := grpc.NewClient(
-		paymentServiceServerAddress,
+		config.AppConfig().PaymentGRPC.Address(),
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
 	)
 	if err != nil {
@@ -48,8 +62,9 @@ func main() {
 	}
 	defer paymentConn.Close()
 
+	// Коннект к inventory сервису
 	inventoryConn, err := grpc.NewClient(
-		inventoryServiceServerAddress,
+		config.AppConfig().InventoryGRPC.Address(),
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
 	)
 	if err != nil {
@@ -63,13 +78,13 @@ func main() {
 
 	inventoryGeneratedClient := inventoryV1.NewInventoryServiceClient(inventoryConn)
 	inventoryClient := inventoryClientV1.NewClient(inventoryGeneratedClient)
-	
+
 	// Открываем коннект с БД
 	database, err := db.NewDB()
 	if err != nil {
 		log.Fatalf("failed to connect to database: %v", err)
 	}
-	
+
 	// Закрываем коннект что бы не висел
 	defer database.Close()
 
@@ -94,14 +109,14 @@ func main() {
 
 	// Настраиваем HTTP сервер
 	server := &http.Server{
-		Addr:              net.JoinHostPort("localhost", httpPort),
+		Addr:              config.AppConfig().OrderHTTTP.Address(),
 		Handler:           r,
 		ReadHeaderTimeout: readHeaderTimeout,
 	}
 
 	// Запускаем сервер в горутине
 	go func() {
-		log.Printf("🚀 HTTP-сервер запущен на порту %s\n", httpPort)
+		log.Printf("🚀 HTTP-сервер запущен на порту %s\n", config.AppConfig().OrderHTTTP.Address())
 		err = server.ListenAndServe()
 		if err != nil && !errors.Is(err, http.ErrServerClosed) {
 			log.Printf("❌ Ошибка запуска сервера: %v\n", err)
