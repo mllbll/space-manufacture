@@ -678,42 +678,63 @@ tasks:
     dir: deploy/compose/core
     cmds:
       - echo "[task] 🚀 Поднимаем core контейнеры"
-      - docker compose up --build --detach
+      - docker-compose up --build --detach
 
   down-core:
     desc: Остановить и удалить core контейнеры
     dir: deploy/compose/core
     cmds:
       - echo "[task] 🛑 Останавливаем core контейнеры"
-      - docker compose down --volumes
+      - docker-compose down
+
+  down-core-with-volumes:
+    desc: Остановить и удалить core контейнеры
+    dir: deploy/compose/core
+    cmds:
+      - echo "[task] 🛑 Останавливаем core контейнеры"
+      - docker-compose down --volumes
 
   up-inventory:
     desc: Поднять Inventory сервис и все его зависимости
     dir: deploy/compose/inventory
     cmds:
       - echo "[task] 📦 Поднимаем Inventory с зависимостями"
-      - docker compose up --build --detach
+      - docker-compose up --build --detach
 
   down-inventory:
+    desc: Остановить и удалить Inventory сервис
+    dir: deploy/compose/inventory
+    cmds:
+      - echo "[task] 🛑 Останавливаем Inventory"
+      - docker-compose down
+
+  down-inventory-with-volums:
     desc: Остановить и удалить Inventory сервис и все его зависимости
     dir: deploy/compose/inventory
     cmds:
       - echo "[task] 🛑 Останавливаем Inventory с зависимостями"
-      - docker compose down --volumes
+      - docker-compose down --volumes
 
   up-order:
     desc: Поднять Order сервис и все его зависимости
     dir: deploy/compose/order
     cmds:
       - echo "[task] 📦 Поднимаем Order с зависимостями"
-      - docker compose up --build --detach
+      - docker-compose up --build --detach
 
-  down-order:
+  down-order-with-volumes:
     desc: Остановить и удалить Order сервис и все его зависимости
     dir: deploy/compose/order
     cmds:
       - echo "[task] 🛑 Останавливаем Order с зависимостями"
-      - docker compose down --volumes
+      - docker-compose down --volumes
+
+  down-order:
+    desc: Остановить и удалить Order сервис
+    dir: deploy/compose/order
+    cmds:
+      - echo "[task] 🛑 Останавливаем Order"
+      - docker-compose down
 
   up-all:
     desc: Поднять все сервисы по очереди вместе с зависимостями

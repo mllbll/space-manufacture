@@ -7,19 +7,19 @@ import (
 )
 
 type paymentGRPCEnvConfig struct {
-	Host string `env:"PAYMENT_GRPC_HOST,required"`
-	Port string `env:"PAYMENT_GRPC_PORT,required"`
+	Host string `env:"GRPC_HOST,required"`
+	Port string `env:"GRPC_PORT,required"`
 }
 
 type paymentGRPCConfig struct {
 	raw paymentGRPCEnvConfig
 }
 
-func NewPaymentGRPCConfig () (*paymentGRPCConfig, error) {
+func NewPaymentGRPCConfig() (*paymentGRPCConfig, error) {
 	var raw paymentGRPCEnvConfig
-	
+
 	if err := env.Parse(&raw); err != nil {return nil, err}
-	
+
 	return &paymentGRPCConfig{
 		raw: raw,
 	}, nil
