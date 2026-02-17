@@ -3,18 +3,11 @@ package app
 import (
 	"context"
 	"fmt"
-	"log"
-	"net"
-	"os"
-	"os/signal"
-	"syscall"
 
-	"github.com/mllbll/space-manufacture/inventory/internal/client/db"
 	"github.com/mllbll/space-manufacture/inventory/internal/config"
-	"github.com/mllbll/space-manufacture/inventory/internal/interceptor"
 	"github.com/mllbll/space-manufacture/inventory/internal/repository"
 	"github.com/mllbll/space-manufacture/inventory/internal/service"
-	"github.com/mllbll/space-manufacture/platform/closer"
+	"platform/pkg/closer"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"go.mongodb.org/mongo-driver/mongo/readpref"
@@ -64,7 +57,7 @@ func (d *diContainer) PartService(ctx context.Context) service.InventoryService 
 
 func (d *diContainer) PartRepository(ctx context.Context) repository.InventoryRepository {
 	if d.inventoryRepository == nil {
-		d.inventoryRepository = inventoryRepository.NewRepository(d.MongoDBHandle(ctx))
+		d.inventoryRepository = inventoryRepository.NewMongoCollection(d.MongoDBHandle(ctx))
 	}
 
 	return d.inventoryRepository

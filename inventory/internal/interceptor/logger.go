@@ -2,10 +2,13 @@ package interceptor
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"path"
+	"platform/pkg/logger"
 	"time"
 
+	"go.uber.org/zap"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/status"
 )
@@ -21,6 +24,7 @@ func LoggerInterceptor() grpc.UnaryServerInterceptor {
 		method := path.Base(info.FullMethod)
 
 		// Логируем начало вызова метода
+		logger.Info(ctx, "🚀 Started gRPC method", zap.String(method, method))
 		log.Printf("🚀 Started gRPC method %s\n", method)
 
 		// Засекаем время начала выполнения
@@ -35,8 +39,10 @@ func LoggerInterceptor() grpc.UnaryServerInterceptor {
 		// Форматируем сообщение в зависимости от результата
 		if err != nil {
 			st, _ := status.FromError(err)
+			logger.Error(ctx, fmt.Sprintf("❌ Finished gRPC method %s with code %s: %v (took: %v)\n", method, st.Code(), err, duration), zap.Error(err))
 			log.Printf("❌ Finished gRPC method %s with code %s: %v (took: %v)\n", method, st.Code(), err, duration)
 		} else {
+			logger.Info(ctx, fmt.Sprintf("✅ Finished gRPC method %s successfully (took: %v)\n", method, duration))
 			log.Printf("✅ Finished gRPC method %s successfully (took: %v)\n", method, duration)
 		}
 

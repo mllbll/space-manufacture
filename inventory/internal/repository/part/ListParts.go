@@ -3,10 +3,12 @@ package part
 import (
 	"context"
 	"log"
+	"platform/pkg/logger"
 
 	"github.com/mllbll/space-manufacture/inventory/internal/model"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo/options"
+	"go.uber.org/zap"
 
 	repoConverter "github.com/mllbll/space-manufacture/inventory/internal/repository/converter"
 	repoModel "github.com/mllbll/space-manufacture/inventory/internal/repository/model"
@@ -17,20 +19,23 @@ func (r *mongoRepository) ListParts(ctx context.Context, req model.ListPartsRequ
 
 	cursor, err := r.collection.Find(ctx, filter, options.Find())
 	if err != nil {
-		log.Printf("Ошибка при чтении заметок %v\n", err)
+		logger.Error(ctx, "Ошибка при чтении частей", zap.Error(err))
+		log.Printf("Ошибка при чтении частей %v\n", err)
 		return model.ListPartsResponse{}, err
 	}
 
 	defer func () {
 		err := cursor.Close(ctx);
 		if err != nil {
+			logger.Error(ctx, "Ошибка при закрытии курсора", zap.Error(err))
 			log.Printf("Ошибка при закрытии курсора: %v\n", err)
 		}
 	}()
 
 	var parts []repoModel.Part
 	if err = cursor.All(ctx, &parts); err != nil {
-		log.Printf("Ошибка при декодировании заметок: %v\n", err)
+		logger.Error(ctx, "Ошибка при декодировании частей", zap.Error(err))
+		log.Printf("Ошибка при декодировании частей: %v\n", err)
 		return model.ListPartsResponse{}, err
 	}
 
