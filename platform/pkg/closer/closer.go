@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"os"
 	"os/signal"
-	"platform/logger"
+	"platform/pkg/logger"
 	"sync"
 	"time"
 

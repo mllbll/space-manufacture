@@ -1,24 +1,18 @@
 package main
 
 import (
+	"context"
 	"fmt"
-	"log"
-	"net"
-	"os"
 	"os/signal"
+	"platform/pkg/closer"
+	"platform/pkg/logger"
 	"syscall"
+	"time"
 
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/reflection"
+	"go.uber.org/zap"
 
+	"github.com/mllbll/space-manufacture/payment/internal/app"
 	"github.com/mllbll/space-manufacture/payment/internal/config"
-	"github.com/mllbll/space-manufacture/payment/internal/interceptor"
-
-	paymentV1API "github.com/mllbll/space-manufacture/payment/internal/api/payment/v1"
-	paymentRepository "github.com/mllbll/space-manufacture/payment/internal/repository/payment"
-	paymentService "github.com/mllbll/space-manufacture/payment/internal/service/payment"
-
-	paymentV1 "github.com/mllbll/space-manufacture/shared/pkg/proto/payment/v1"
 )
 
 const configPath = "./../deploy/compose/payment/.env"
@@ -29,46 +23,32 @@ func main() {
 	panic(fmt.Errorf("failed to load config: %w", err))
 	}
 
-	lis, err := net.Listen("tcp", config.AppConfig().PaymentGRPC.Address())
+	appCtx, appCancel := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
+	defer appCancel()
+	defer gracefulShutdown()
+
+	closer.Configure(syscall.SIGINT, syscall.SIGTERM)
+
+	a, err := app.New(appCtx)
 	if err != nil {
-		log.Printf("failed to listen: %v\n", err)
+		logger.Error(appCtx, "Ошибка при работе приложения", zap.Error(err))
 		return
 	}
 
-	defer func() {
-		if cerr := lis.Close(); cerr != nil {
-			log.Printf("failed to close listener: %v\n", cerr)
-		}
-	}()
-
-	// создаем grpc сервер с интерсептором logger
-	s := grpc.NewServer(
-		grpc.UnaryInterceptor(interceptor.LoggerInterceptor()),
-	)
-
-	// регистрируем сервис
-	repo := paymentRepository.NewRepository()
-	service := paymentService.NewService(repo)
-	api := paymentV1API.NewAPI(service)
-
-	paymentV1.RegisterPaymentServiceServer(s, api)
-
-	// включаем рефлексию
-	reflection.Register(s)
-
-	go func() {
-		log.Printf("gRPC server listening on %s\n", config.AppConfig().PaymentGRPC.Address())
-		err = s.Serve(lis)
-		if err != nil {
-			log.Printf("failed to serve %v\n", err)
-		}
-	}()
-
-	quit := make(chan os.Signal, 1)
-	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
-	<-quit
-	log.Printf("Shutting down gRPC server ...")
-	s.GracefulStop()
-	log.Printf("Server Stopped")
-
+	err = a.Run(appCtx)
+	if err != nil {
+		logger.Error(appCtx, "Ошибка при работе приложения", zap.Error(err))
+		return
+	}
 }
+
+func gracefulShutdown() {
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	if err := closer.CloseAll(ctx); err != nil {
+		logger.Error(ctx, "Ошибка при завершении работы", zap.Error(err))
+	}
+}
+
+

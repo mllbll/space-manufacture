@@ -3,12 +3,14 @@ package part
 import (
 	"context"
 	"errors"
+	"platform/pkg/logger"
 
 	"github.com/mllbll/space-manufacture/inventory/internal/model"
 	repoConverter "github.com/mllbll/space-manufacture/inventory/internal/repository/converter"
 	repoModel "github.com/mllbll/space-manufacture/inventory/internal/repository/model"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
+	"go.uber.org/zap"
 )
 
 func (r *mongoRepository) GetPart(ctx context.Context, req model.GetPartRequest) (model.GetPartResponse, error) {
@@ -17,6 +19,7 @@ func (r *mongoRepository) GetPart(ctx context.Context, req model.GetPartRequest)
 	err := r.collection.FindOne(ctx, bson.M{"uuid":req.UUID}).Decode(&res)
 
 	if err != nil {
+		logger.Error(ctx, "Ошибка при получении заказа", zap.Error(err))
 		if errors.Is(err, mongo.ErrNoDocuments) {
 			return model.GetPartResponse{}, model.ErrPartNotFound
 		}

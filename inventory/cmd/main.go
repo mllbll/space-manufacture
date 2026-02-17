@@ -3,23 +3,15 @@ package main
 import (
 	"context"
 	"fmt"
-	"log"
-	"net"
-	"os"
 	"os/signal"
+	"platform/pkg/closer"
+	"platform/pkg/logger"
 	"syscall"
+	"time"
 
-	"github.com/mllbll/space-manufacture/inventory/internal/client/db"
+	"github.com/mllbll/space-manufacture/inventory/internal/app"
 	"github.com/mllbll/space-manufacture/inventory/internal/config"
-	"github.com/mllbll/space-manufacture/inventory/internal/interceptor"
-
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/reflection"
-
-	inventoryV1API "github.com/mllbll/space-manufacture/inventory/internal/api/inventory/v1"
-	inventoryRepository "github.com/mllbll/space-manufacture/inventory/internal/repository/part"
-	inventoryService "github.com/mllbll/space-manufacture/inventory/internal/service/part"
-	inventoryV1 "github.com/mllbll/space-manufacture/shared/pkg/proto/inventory/v1"
+	"go.uber.org/zap"
 )
 
 const configPath = "./../deploy/compose/inventory/.env"
@@ -30,67 +22,30 @@ func main() {
 		panic(fmt.Errorf("failed to load config: %w", err))
 	}
 
-	lis, err := net.Listen("tcp", config.AppConfig().InventoryGRPC.Address())
+	appCtx, appCancel := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
+	defer appCancel()
+	defer gracefulShutdown()
 
+	closer.Configure(syscall.SIGINT, syscall.SIGTERM)
+
+	a, err := app.New(appCtx)
 	if err != nil {
-		log.Printf("failed to listen: %v\n", err)
+		logger.Error(appCtx, "Не удалось создать приложение", zap.Error(err))
 		return
 	}
 
-	defer func() {
-		if cerr := lis.Close(); cerr != nil {
-			log.Printf("failed to close listener: %v\n", cerr)
-		}
-	}()
-
-	s := grpc.NewServer(
-		grpc.UnaryInterceptor(interceptor.LoggerInterceptor()),
-	)
-
-	database, err := db.NewDb()
+	err = a.Run(appCtx)
 	if err != nil {
-		log.Printf("Ошибка создания коннекта с базой данных: %v\n", err)
+		logger.Error(appCtx, "Ошибка при работе приложения", zap.Error(err))
+		return
 	}
+}
 
-	// регистрируем сервис
-	repo := inventoryRepository.NewMongoCollection(database.GetDataBase())
-	// Инициализируем тестовые данные
-	if err := repo.InitData(context.Background()); err != nil {
-		log.Printf("init data: %v", err)
-	} else {
-		log.Print("Тестовые данные успешно инициализированы!")
+func gracefulShutdown() {
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	if err := closer.CloseAll(ctx); err != nil {
+		logger.Error(ctx, "Ошибка при завершении работы", zap.Error(err))
 	}
-
-	defer database.Close()
-
-	service := inventoryService.NewService(repo)
-	api := inventoryV1API.NewAPI(service)
-
-	inventoryV1.RegisterInventoryServiceServer(s, api)
-
-	reflection.Register(s)
-
-	go func() {
-		defer func() {
-			if r := recover(); r != nil {
-				log.Printf("PANIC recovered in gRPC server: %v\n", r)
-				// Передаем панику дальше для полного стека
-				panic(r)
-			}
-		}()
-		log.Printf("gRPC server listening on %s\n", config.AppConfig().InventoryGRPC.Address())
-		err = s.Serve(lis)
-		if err != nil {
-			log.Printf("failed to serve %v\n", err)
-			return
-		}
-	}()
-
-	quit := make(chan os.Signal, 1)
-	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
-	<-quit
-	log.Println("Shutting down gRPC server ...")
-	s.GracefulStop()
-	log.Println("Server Stopped")
-
 }
