@@ -13,6 +13,7 @@ type service struct {
 	orderRepository repository.OrderRepository
 
 	paymentClient grpc.PaymentClient
+
 	inventoryClient grpc.InventoryClient
 }
 

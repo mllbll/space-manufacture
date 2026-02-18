@@ -11,7 +11,7 @@ type client struct {
 	generatedClient generatedPaymentV1.PaymentServiceClient
 }
 
-func NewClient(generatedClient generatedPaymentV1.PaymentServiceClient) * client {
+func NewClient(generatedClient generatedPaymentV1.PaymentServiceClient) *client {
 	return &client{
 		generatedClient: generatedClient,
 	}
