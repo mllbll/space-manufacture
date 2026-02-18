@@ -9,6 +9,7 @@ import (
 type orderHTTPEnvConfig struct {
 	Host string `env:"HTTP_HOST,required"`
 	Port string `env:"HTTP_PORT,required"`
+	ReadHeaderTimeout string `env:"HTTP_READ_TIMEOUT,required"`
 }
 
 type orderHTTPConfig struct {
@@ -31,4 +32,6 @@ func (cfg *orderHTTPConfig) Address() string {
 	return net.JoinHostPort(cfg.raw.Host, cfg.raw.Port)
 }
 
-
+func (cfg *orderHTTPConfig) ReadHeaderTimeout() string {
+	return cfg.raw.ReadHeaderTimeout
+}

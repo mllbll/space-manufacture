@@ -1,5 +1,7 @@
 package config
 
+import ()
+
 type LoggerConfig interface {
 	Level() string
 	AsJson() bool
@@ -7,6 +9,7 @@ type LoggerConfig interface {
 
 type OrderHTTPConfig interface {
 	Address() string
+	ReadHeaderTimeout() string
 }
 
 type PostgresConfig interface {
